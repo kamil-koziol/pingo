@@ -24,13 +24,15 @@ func (m *Monitor) Run(ctx context.Context) {
 			return
 		case <-ticker.C:
 			slog.InfoContext(ctx, "checking", "url", m.URL.String())
+
+			start := time.Now()
 			resp, err := m.Call(ctx)
 			if err != nil {
 				slog.ErrorContext(ctx, "there was an error during request", "err", err)
 				continue
 			}
 
-			slog.InfoContext(ctx, "got a response", "code", resp.StatusCode)
+			slog.InfoContext(ctx, "got a response", "code", resp.StatusCode, "latency", time.Since(start))
 		}
 	}
 
