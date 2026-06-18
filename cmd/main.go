@@ -23,9 +23,10 @@ func main() {
 	ctx := context.Background()
 	for _, check := range config.Checks {
 		m := monitoring.Monitor{
-			URL:      check.URL,
-			Interval: check.Interval,
-			Name:     check.Name,
+			URL:            check.URL,
+			Interval:       check.Interval,
+			Name:           check.Name,
+			ExpectedStatus: check.ExpectedStatus,
 		}
 
 		go m.Run(ctx)

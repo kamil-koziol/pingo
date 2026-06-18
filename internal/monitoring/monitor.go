@@ -10,9 +10,10 @@ import (
 )
 
 type Monitor struct {
-	URL      *url.URL
-	Interval time.Duration
-	Name     string
+	URL            *url.URL
+	Interval       time.Duration
+	Name           string
+	ExpectedStatus int
 }
 
 func (m *Monitor) Run(ctx context.Context) {
@@ -39,7 +40,11 @@ func (m *Monitor) Run(ctx context.Context) {
 				continue
 			}
 
-			slog.InfoContext(ctx, "got a response", "code", resp.StatusCode, "latency", time.Since(start))
+			slog.InfoContext(ctx, "got a response",
+				"code", resp.StatusCode,
+				"pass", resp.StatusCode == m.ExpectedStatus,
+				"latency", time.Since(start),
+			)
 		}
 	}
 
