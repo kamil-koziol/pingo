@@ -41,7 +41,7 @@ func main() {
 	q := db.New(conn)
 
 	for _, check := range config.Checks {
-		_, err := q.UpsertService(ctx, db.UpsertServiceParams{
+		service, err := q.UpsertService(ctx, db.UpsertServiceParams{
 			Name:            check.Name,
 			Url:             check.URL.String(),
 			IntervalSeconds: int64(check.Interval.Seconds()),
@@ -52,13 +52,7 @@ func main() {
 			log.Fatalf("unable to upsert service: %v", err)
 		}
 
-		m := monitoring.Monitor{
-			URL:            check.URL,
-			Interval:       check.Interval,
-			Name:           check.Name,
-			ExpectedStatus: check.ExpectedStatus,
-		}
-
+		m := monitoring.NewMonitor(service, q)
 		go m.Run(ctx)
 	}
 

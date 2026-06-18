@@ -7,7 +7,35 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
+
+const createPing = `-- name: CreatePing :exec
+INSERT INTO pings (service_id, status_code, latency_ms, is_up, error_message, timestamp)
+VALUES (?, ?, ?, ?, ?, ?)
+`
+
+type CreatePingParams struct {
+	ServiceID    int64
+	StatusCode   int64
+	LatencyMs    int64
+	IsUp         bool
+	ErrorMessage sql.NullString
+	Timestamp    time.Time
+}
+
+func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
+	_, err := q.db.ExecContext(ctx, createPing,
+		arg.ServiceID,
+		arg.StatusCode,
+		arg.LatencyMs,
+		arg.IsUp,
+		arg.ErrorMessage,
+		arg.Timestamp,
+	)
+	return err
+}
 
 const upsertService = `-- name: UpsertService :one
 INSERT INTO services (name, url, interval_seconds, expected_status)

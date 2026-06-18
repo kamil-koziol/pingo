@@ -3,19 +3,26 @@ package monitoring
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"time"
+
+	"github.com/kamil-koziol/pingo/internal/db"
 )
 
 type Monitor struct {
-	URL            *url.URL
-	Interval       time.Duration
-	Name           string
-	ExpectedStatus int
+	service db.Service
+	q       *db.Queries
+}
+
+func NewMonitor(service db.Service, queries *db.Queries) *Monitor {
+	return &Monitor{
+		service: service,
+		q:       queries,
+	}
 }
 
 func NewCID() string {
@@ -31,18 +38,19 @@ func NewCID() string {
 }
 
 func (m *Monitor) Run(ctx context.Context) {
-	ticker := time.NewTicker(m.Interval)
+	interval := time.Duration(m.service.IntervalSeconds) * time.Second
+	ticker := time.NewTicker(interval)
 
 	slog.InfoContext(ctx, "start monitoring",
-		"name", m.Name,
-		"url", m.URL.String(),
-		"interval", m.Interval,
+		"name", m.service.Name,
+		"url", m.service.Url,
+		"interval", interval,
 	)
 
 	for {
 		select {
 		case <-ctx.Done():
-			slog.InfoContext(ctx, "monitor for finished", "url", m.URL.String())
+			slog.InfoContext(ctx, "monitor for finished", "url", m.service.Url)
 			return
 		case <-ticker.C:
 			if err := m.Ping(ctx); err != nil {
@@ -54,7 +62,7 @@ func (m *Monitor) Run(ctx context.Context) {
 }
 
 func (m *Monitor) Call(ctx context.Context) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, m.URL.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, m.service.Url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create request: %w", err)
 	}
@@ -66,7 +74,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	log := slog.Default()
 	log = log.With("cid", cid)
 
-	log.InfoContext(ctx, "checking", "url", m.URL.String())
+	log.InfoContext(ctx, "checking", "url", m.service.Url)
 
 	start := time.Now()
 	resp, err := m.Call(ctx)
@@ -75,11 +83,25 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		return fmt.Errorf("unable to call: %w", err)
 	}
 
+	latency := time.Since(start)
+	isUp := int64(resp.StatusCode) == m.service.ExpectedStatus
+
 	log.InfoContext(ctx, "got a response",
 		"code", resp.StatusCode,
-		"pass", resp.StatusCode == m.ExpectedStatus,
-		"latency", time.Since(start),
+		"is_up", isUp,
+		"latency", latency,
 	)
+
+	if err = m.q.CreatePing(ctx, db.CreatePingParams{
+		ServiceID:    m.service.ID,
+		StatusCode:   int64(resp.StatusCode),
+		LatencyMs:    latency.Milliseconds(),
+		IsUp:         isUp,
+		ErrorMessage: sql.NullString{},
+		Timestamp:    time.Now(),
+	}); err != nil {
+		return fmt.Errorf("unable to create ping: %w", err)
+	}
 
 	return nil
 }
