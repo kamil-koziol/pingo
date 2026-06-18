@@ -17,6 +17,8 @@ type Monitor struct {
 func (m *Monitor) Run(ctx context.Context) {
 	ticker := time.NewTicker(m.Interval)
 
+	slog.InfoContext(ctx, "start monitoring", "url", m.URL.String(), "interval", m.Interval)
+
 	for {
 		select {
 		case <-ctx.Done():
