@@ -25,6 +25,7 @@ func main() {
 		m := monitoring.Monitor{
 			URL:      check.URL,
 			Interval: check.Interval,
+			Name:     check.Name,
 		}
 
 		go m.Run(ctx)

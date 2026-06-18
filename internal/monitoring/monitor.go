@@ -12,12 +12,17 @@ import (
 type Monitor struct {
 	URL      *url.URL
 	Interval time.Duration
+	Name     string
 }
 
 func (m *Monitor) Run(ctx context.Context) {
 	ticker := time.NewTicker(m.Interval)
 
-	slog.InfoContext(ctx, "start monitoring", "url", m.URL.String(), "interval", m.Interval)
+	slog.InfoContext(ctx, "start monitoring",
+		"name", m.Name,
+		"url", m.URL.String(),
+		"interval", m.Interval,
+	)
 
 	for {
 		select {
