@@ -45,24 +45,9 @@ func (m *Monitor) Run(ctx context.Context) {
 			slog.InfoContext(ctx, "monitor for finished", "url", m.URL.String())
 			return
 		case <-ticker.C:
-			cid := NewCID()
-			log := slog.Default()
-			log = log.With("cid", cid)
-
-			log.InfoContext(ctx, "checking", "url", m.URL.String())
-
-			start := time.Now()
-			resp, err := m.Call(ctx)
-			if err != nil {
-				log.ErrorContext(ctx, "there was an error during request", "err", err)
-				continue
+			if err := m.Ping(ctx); err != nil {
+				slog.ErrorContext(ctx, "failure during ping", "err", err)
 			}
-
-			log.InfoContext(ctx, "got a response",
-				"code", resp.StatusCode,
-				"pass", resp.StatusCode == m.ExpectedStatus,
-				"latency", time.Since(start),
-			)
 		}
 	}
 
@@ -74,4 +59,27 @@ func (m *Monitor) Call(ctx context.Context) (*http.Response, error) {
 		return nil, fmt.Errorf("unable to create request: %w", err)
 	}
 	return http.DefaultClient.Do(req)
+}
+
+func (m *Monitor) Ping(ctx context.Context) error {
+	cid := NewCID()
+	log := slog.Default()
+	log = log.With("cid", cid)
+
+	log.InfoContext(ctx, "checking", "url", m.URL.String())
+
+	start := time.Now()
+	resp, err := m.Call(ctx)
+	if err != nil {
+		log.ErrorContext(ctx, "there was an error during request", "err", err)
+		return fmt.Errorf("unable to call: %w", err)
+	}
+
+	log.InfoContext(ctx, "got a response",
+		"code", resp.StatusCode,
+		"pass", resp.StatusCode == m.ExpectedStatus,
+		"latency", time.Since(start),
+	)
+
+	return nil
 }
