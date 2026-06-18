@@ -10,9 +10,10 @@ import (
 )
 
 type Check struct {
-	Name     string
-	URL      *url.URL
-	Interval time.Duration
+	Name           string
+	URL            *url.URL
+	Interval       time.Duration
+	ExpectedStatus int
 }
 
 type Config struct {
@@ -41,9 +42,10 @@ func Parse(r io.Reader) (*Config, error) {
 		}
 
 		config.Checks = append(config.Checks, Check{
-			Name:     c.Name,
-			URL:      u,
-			Interval: d,
+			Name:           c.Name,
+			URL:            u,
+			Interval:       d,
+			ExpectedStatus: c.ExpectedStatus,
 		})
 	}
 
