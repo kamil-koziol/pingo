@@ -2,19 +2,33 @@ package main
 
 import (
 	"context"
-	"net/url"
-	"time"
+	"log"
+	"os"
 
+	"github.com/kamil-koziol/pingo/internal/configuration"
 	"github.com/kamil-koziol/pingo/internal/monitoring"
 )
 
 func main() {
-	u, _ := url.Parse("https://kamilkoziol.com")
-	m := monitoring.Monitor{
-		URL:      u,
-		Interval: time.Second,
+	f, err := os.Open("config.yml")
+	if err != nil {
+		log.Fatalf("unable to read config: %v", err)
+	}
+
+	config, err := configuration.Parse(f)
+	if err != nil {
+		log.Fatalf("unable to parse config: %v", err)
 	}
 
 	ctx := context.Background()
-	m.Run(ctx)
+	for _, check := range config.Checks {
+		m := monitoring.Monitor{
+			URL:      check.URL,
+			Interval: check.Interval,
+		}
+
+		go m.Run(ctx)
+	}
+
+	<-ctx.Done()
 }
