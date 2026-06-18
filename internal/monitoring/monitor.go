@@ -2,6 +2,8 @@ package monitoring
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -14,6 +16,18 @@ type Monitor struct {
 	Interval       time.Duration
 	Name           string
 	ExpectedStatus int
+}
+
+func NewCID() string {
+	var b [16]byte
+
+	_, err := rand.Read(b[:])
+	if err != nil {
+		// extremely rare; fallback to empty-ish safe value
+		return "00000000000000000000000000000000"
+	}
+
+	return hex.EncodeToString(b[:])
 }
 
 func (m *Monitor) Run(ctx context.Context) {
@@ -31,16 +45,20 @@ func (m *Monitor) Run(ctx context.Context) {
 			slog.InfoContext(ctx, "monitor for finished", "url", m.URL.String())
 			return
 		case <-ticker.C:
-			slog.InfoContext(ctx, "checking", "url", m.URL.String())
+			cid := NewCID()
+			log := slog.Default()
+			log = log.With("cid", cid)
+
+			log.InfoContext(ctx, "checking", "url", m.URL.String())
 
 			start := time.Now()
 			resp, err := m.Call(ctx)
 			if err != nil {
-				slog.ErrorContext(ctx, "there was an error during request", "err", err)
+				log.ErrorContext(ctx, "there was an error during request", "err", err)
 				continue
 			}
 
-			slog.InfoContext(ctx, "got a response",
+			log.InfoContext(ctx, "got a response",
 				"code", resp.StatusCode,
 				"pass", resp.StatusCode == m.ExpectedStatus,
 				"latency", time.Since(start),
