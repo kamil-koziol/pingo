@@ -129,16 +129,25 @@ func (q *Queries) ListActiveServices(ctx context.Context) ([]Service, error) {
 const listPings = `-- name: ListPings :many
 SELECT id, service_id, status_code, latency_ms, is_up, error_message, timestamp FROM pings
 WHERE (?1 IS NULL OR is_up = ?1) AND
-(?2 IS NULL OR service_id = ?2)
+(?2 IS NULL OR service_id = ?2) AND
+(?3 IS NULL OR timestamp > ?3) AND
+(?4 IS NULL OR timestamp < ?4)
 `
 
 type ListPingsParams struct {
-	IsUp      interface{}
-	ServiceID interface{}
+	IsUp            interface{}
+	ServiceID       interface{}
+	TimestampAfter  interface{}
+	TimestampBefore interface{}
 }
 
 func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, error) {
-	rows, err := q.db.QueryContext(ctx, listPings, arg.IsUp, arg.ServiceID)
+	rows, err := q.db.QueryContext(ctx, listPings,
+		arg.IsUp,
+		arg.ServiceID,
+		arg.TimestampAfter,
+		arg.TimestampBefore,
+	)
 	if err != nil {
 		return nil, err
 	}

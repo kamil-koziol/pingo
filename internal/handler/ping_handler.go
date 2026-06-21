@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	pb "github.com/kamil-koziol/pingo/gen/go"
 	"github.com/kamil-koziol/pingo/internal/db"
@@ -61,8 +62,17 @@ func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*p
 		params.ServiceID = r.ServiceId
 	}
 
+	if r.TimestampAfter != nil {
+		params.TimestampAfter = r.TimestampAfter.AsTime()
+	}
+
+	if r.TimestampBefore != nil {
+		params.TimestampBefore = r.TimestampBefore.AsTime()
+	}
+
 	pings, err := h.q.ListPings(ctx, params)
 	if err != nil {
+		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "failed to fetch pings")
 	}
 
