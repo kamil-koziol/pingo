@@ -25,7 +25,7 @@ func NewMonitor(service db.Service, queries *db.Queries) *Monitor {
 	}
 }
 
-func NewCID() string {
+func newCID() string {
 	var b [16]byte
 
 	_, err := rand.Read(b[:])
@@ -70,7 +70,7 @@ func (m *Monitor) Call(ctx context.Context) (*http.Response, error) {
 }
 
 func (m *Monitor) Ping(ctx context.Context) error {
-	cid := NewCID()
+	cid := newCID()
 	log := slog.Default()
 	log = log.With("cid", cid)
 
