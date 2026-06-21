@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -92,12 +93,17 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		"latency", latency,
 	)
 
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("unable to read the body: %w", err)
+	}
+
 	if err = m.q.CreatePing(ctx, db.CreatePingParams{
 		ServiceID:    m.service.ID,
 		StatusCode:   int64(resp.StatusCode),
 		LatencyMs:    latency.Milliseconds(),
 		IsUp:         isUp,
-		ErrorMessage: sql.NullString{},
+		ErrorMessage: sql.NullString{String: string(b), Valid: !isUp},
 		Timestamp:    time.Now(),
 	}); err != nil {
 		return fmt.Errorf("unable to create ping: %w", err)
