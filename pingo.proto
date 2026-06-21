@@ -1,9 +1,10 @@
 syntax = "proto3";
 package pingo.v1;
-option go_package = "github.com/kamil-koziol/pingo/gen/go/pingo/v1";
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kamil-koziol/pingo/gen/go/pingo/v1";
 
 message Service {
   int64 id = 1;
@@ -28,18 +29,51 @@ message ListServicesResponse {
   string next_page_token = 2;
 }
 
-
 service ServiceService {
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc GetService(GetServiceRequest) returns (Service) {
-    option (google.api.http) = {
-      get: "/v1/services/{id}"
-    };
+    option (google.api.http) = {get: "/v1/services/{id}"};
   }
 
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
-    option (google.api.http) = {
-      get: "/v1/services"
-    };
+    option (google.api.http) = {get: "/v1/services"};
+  }
+}
+
+message Ping {
+  int64 id = 1;
+  int64 service_id = 2;
+  int32 status_code = 3;
+  int32 latency_ms = 4;
+  bool is_up = 5;
+  string error_message = 6;
+  google.protobuf.Timestamp timestamp = 7;
+}
+
+message GetPingRequest {
+  int64 id = 1;
+}
+
+message ListPingsRequest {
+  optional int32 page_size = 1;
+  optional string page_token = 2;
+
+  optional int64 service_id = 3;
+  optional bool is_up = 4;
+}
+
+message ListPingsResponse {
+  repeated Ping pings = 1;
+  string next_page_token = 2;
+}
+
+service PingService {
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc GetPing(GetPingRequest) returns (Ping) {
+    option (google.api.http) = {get: "/v1/pings/{id}"};
+  }
+
+  rpc ListPings(ListPingsRequest) returns (ListPingsResponse) {
+    option (google.api.http) = {get: "/v1/pings"};
   }
 }

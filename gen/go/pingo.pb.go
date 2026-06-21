@@ -10,7 +10,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -255,11 +255,267 @@ func (x *ListServicesResponse) GetNextPageToken() string {
 	return ""
 }
 
+type Ping struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ServiceId     int64                  `protobuf:"varint,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	StatusCode    int32                  `protobuf:"varint,3,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	LatencyMs     int32                  `protobuf:"varint,4,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
+	IsUp          bool                   `protobuf:"varint,5,opt,name=is_up,json=isUp,proto3" json:"is_up,omitempty"`
+	ErrorMessage  string                 `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Ping) Reset() {
+	*x = Ping{}
+	mi := &file_pingo_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Ping) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ping) ProtoMessage() {}
+
+func (x *Ping) ProtoReflect() protoreflect.Message {
+	mi := &file_pingo_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ping.ProtoReflect.Descriptor instead.
+func (*Ping) Descriptor() ([]byte, []int) {
+	return file_pingo_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Ping) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Ping) GetServiceId() int64 {
+	if x != nil {
+		return x.ServiceId
+	}
+	return 0
+}
+
+func (x *Ping) GetStatusCode() int32 {
+	if x != nil {
+		return x.StatusCode
+	}
+	return 0
+}
+
+func (x *Ping) GetLatencyMs() int32 {
+	if x != nil {
+		return x.LatencyMs
+	}
+	return 0
+}
+
+func (x *Ping) GetIsUp() bool {
+	if x != nil {
+		return x.IsUp
+	}
+	return false
+}
+
+func (x *Ping) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *Ping) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+type GetPingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPingRequest) Reset() {
+	*x = GetPingRequest{}
+	mi := &file_pingo_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPingRequest) ProtoMessage() {}
+
+func (x *GetPingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pingo_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPingRequest.ProtoReflect.Descriptor instead.
+func (*GetPingRequest) Descriptor() ([]byte, []int) {
+	return file_pingo_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetPingRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ListPingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageSize      *int32                 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	PageToken     *string                `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	ServiceId     *int64                 `protobuf:"varint,3,opt,name=service_id,json=serviceId,proto3,oneof" json:"service_id,omitempty"`
+	IsUp          *bool                  `protobuf:"varint,4,opt,name=is_up,json=isUp,proto3,oneof" json:"is_up,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPingsRequest) Reset() {
+	*x = ListPingsRequest{}
+	mi := &file_pingo_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPingsRequest) ProtoMessage() {}
+
+func (x *ListPingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pingo_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPingsRequest.ProtoReflect.Descriptor instead.
+func (*ListPingsRequest) Descriptor() ([]byte, []int) {
+	return file_pingo_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListPingsRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListPingsRequest) GetPageToken() string {
+	if x != nil && x.PageToken != nil {
+		return *x.PageToken
+	}
+	return ""
+}
+
+func (x *ListPingsRequest) GetServiceId() int64 {
+	if x != nil && x.ServiceId != nil {
+		return *x.ServiceId
+	}
+	return 0
+}
+
+func (x *ListPingsRequest) GetIsUp() bool {
+	if x != nil && x.IsUp != nil {
+		return *x.IsUp
+	}
+	return false
+}
+
+type ListPingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pings         []*Ping                `protobuf:"bytes,1,rep,name=pings,proto3" json:"pings,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPingsResponse) Reset() {
+	*x = ListPingsResponse{}
+	mi := &file_pingo_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPingsResponse) ProtoMessage() {}
+
+func (x *ListPingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pingo_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPingsResponse.ProtoReflect.Descriptor instead.
+func (*ListPingsResponse) Descriptor() ([]byte, []int) {
+	return file_pingo_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListPingsResponse) GetPings() []*Ping {
+	if x != nil {
+		return x.Pings
+	}
+	return nil
+}
+
+func (x *ListPingsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
 var File_pingo_proto protoreflect.FileDescriptor
 
 const file_pingo_proto_rawDesc = "" +
 	"\n" +
-	"\vpingo.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb0\x01\n" +
+	"\vpingo.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb0\x01\n" +
 	"\aService\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -275,11 +531,42 @@ const file_pingo_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"m\n" +
 	"\x14ListServicesResponse\x12-\n" +
 	"\bservices\x18\x01 \x03(\v2\x11.pingo.v1.ServiceR\bservices\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xe9\x01\n" +
+	"\x04Ping\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x02 \x01(\x03R\tserviceId\x12\x1f\n" +
+	"\vstatus_code\x18\x03 \x01(\x05R\n" +
+	"statusCode\x12\x1d\n" +
+	"\n" +
+	"latency_ms\x18\x04 \x01(\x05R\tlatencyMs\x12\x13\n" +
+	"\x05is_up\x18\x05 \x01(\bR\x04isUp\x12#\n" +
+	"\rerror_message\x18\x06 \x01(\tR\ferrorMessage\x128\n" +
+	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\" \n" +
+	"\x0eGetPingRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\xcc\x01\n" +
+	"\x10ListPingsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05H\x00R\bpageSize\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tH\x01R\tpageToken\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"service_id\x18\x03 \x01(\x03H\x02R\tserviceId\x88\x01\x01\x12\x18\n" +
+	"\x05is_up\x18\x04 \x01(\bH\x03R\x04isUp\x88\x01\x01B\f\n" +
+	"\n" +
+	"_page_sizeB\r\n" +
+	"\v_page_tokenB\r\n" +
+	"\v_service_idB\b\n" +
+	"\x06_is_up\"a\n" +
+	"\x11ListPingsResponse\x12$\n" +
+	"\x05pings\x18\x01 \x03(\v2\x0e.pingo.v1.PingR\x05pings\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xce\x01\n" +
 	"\x0eServiceService\x12W\n" +
 	"\n" +
 	"GetService\x12\x1b.pingo.v1.GetServiceRequest\x1a\x11.pingo.v1.Service\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/services/{id}\x12c\n" +
-	"\fListServices\x12\x1d.pingo.v1.ListServicesRequest\x1a\x1e.pingo.v1.ListServicesResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/servicesB/Z-github.com/kamil-koziol/pingo/gen/go/pingo/v1b\x06proto3"
+	"\fListServices\x12\x1d.pingo.v1.ListServicesRequest\x1a\x1e.pingo.v1.ListServicesResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/services2\xb3\x01\n" +
+	"\vPingService\x12K\n" +
+	"\aGetPing\x12\x18.pingo.v1.GetPingRequest\x1a\x0e.pingo.v1.Ping\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/pings/{id}\x12W\n" +
+	"\tListPings\x12\x1a.pingo.v1.ListPingsRequest\x1a\x1b.pingo.v1.ListPingsResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/pingsB/Z-github.com/kamil-koziol/pingo/gen/go/pingo/v1b\x06proto3"
 
 var (
 	file_pingo_proto_rawDescOnce sync.Once
@@ -293,24 +580,35 @@ func file_pingo_proto_rawDescGZIP() []byte {
 	return file_pingo_proto_rawDescData
 }
 
-var file_pingo_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_pingo_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_pingo_proto_goTypes = []any{
-	(*Service)(nil),              // 0: pingo.v1.Service
-	(*GetServiceRequest)(nil),    // 1: pingo.v1.GetServiceRequest
-	(*ListServicesRequest)(nil),  // 2: pingo.v1.ListServicesRequest
-	(*ListServicesResponse)(nil), // 3: pingo.v1.ListServicesResponse
+	(*Service)(nil),               // 0: pingo.v1.Service
+	(*GetServiceRequest)(nil),     // 1: pingo.v1.GetServiceRequest
+	(*ListServicesRequest)(nil),   // 2: pingo.v1.ListServicesRequest
+	(*ListServicesResponse)(nil),  // 3: pingo.v1.ListServicesResponse
+	(*Ping)(nil),                  // 4: pingo.v1.Ping
+	(*GetPingRequest)(nil),        // 5: pingo.v1.GetPingRequest
+	(*ListPingsRequest)(nil),      // 6: pingo.v1.ListPingsRequest
+	(*ListPingsResponse)(nil),     // 7: pingo.v1.ListPingsResponse
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_pingo_proto_depIdxs = []int32{
 	0, // 0: pingo.v1.ListServicesResponse.services:type_name -> pingo.v1.Service
-	1, // 1: pingo.v1.ServiceService.GetService:input_type -> pingo.v1.GetServiceRequest
-	2, // 2: pingo.v1.ServiceService.ListServices:input_type -> pingo.v1.ListServicesRequest
-	0, // 3: pingo.v1.ServiceService.GetService:output_type -> pingo.v1.Service
-	3, // 4: pingo.v1.ServiceService.ListServices:output_type -> pingo.v1.ListServicesResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 1: pingo.v1.Ping.timestamp:type_name -> google.protobuf.Timestamp
+	4, // 2: pingo.v1.ListPingsResponse.pings:type_name -> pingo.v1.Ping
+	1, // 3: pingo.v1.ServiceService.GetService:input_type -> pingo.v1.GetServiceRequest
+	2, // 4: pingo.v1.ServiceService.ListServices:input_type -> pingo.v1.ListServicesRequest
+	5, // 5: pingo.v1.PingService.GetPing:input_type -> pingo.v1.GetPingRequest
+	6, // 6: pingo.v1.PingService.ListPings:input_type -> pingo.v1.ListPingsRequest
+	0, // 7: pingo.v1.ServiceService.GetService:output_type -> pingo.v1.Service
+	3, // 8: pingo.v1.ServiceService.ListServices:output_type -> pingo.v1.ListServicesResponse
+	4, // 9: pingo.v1.PingService.GetPing:output_type -> pingo.v1.Ping
+	7, // 10: pingo.v1.PingService.ListPings:output_type -> pingo.v1.ListPingsResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_pingo_proto_init() }
@@ -318,15 +616,16 @@ func file_pingo_proto_init() {
 	if File_pingo_proto != nil {
 		return
 	}
+	file_pingo_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pingo_proto_rawDesc), len(file_pingo_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_pingo_proto_goTypes,
 		DependencyIndexes: file_pingo_proto_depIdxs,

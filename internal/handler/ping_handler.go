@@ -1,0 +1,75 @@
+package handler
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+
+	pb "github.com/kamil-koziol/pingo/gen/go"
+	"github.com/kamil-koziol/pingo/internal/db"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func NewPingHandler(db *sql.DB, q *db.Queries) *PingHandler {
+	return &PingHandler{
+		db: db,
+		q:  q,
+	}
+}
+
+type PingHandler struct {
+	pb.UnimplementedPingServiceServer
+	db *sql.DB
+	q  *db.Queries
+}
+
+func mapPingDB(ping *db.Ping) *pb.Ping {
+	return &pb.Ping{
+		Id:           ping.ID,
+		ServiceId:    ping.ServiceID,
+		StatusCode:   int32(ping.StatusCode),
+		LatencyMs:    int32(ping.LatencyMs),
+		IsUp:         ping.IsUp,
+		ErrorMessage: ping.ErrorMessage.String,
+		Timestamp:    timestamppb.New(ping.Timestamp),
+	}
+}
+
+func (h *PingHandler) GetPing(ctx context.Context, r *pb.GetPingRequest) (*pb.Ping, error) {
+	ping, err := h.q.GetPing(ctx, r.Id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "ping not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to fetch ping")
+	}
+
+	return mapPingDB(&ping), nil
+}
+
+func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*pb.ListPingsResponse, error) {
+
+	var params db.ListPingsParams
+	if r.IsUp != nil {
+		params.IsUp = r.IsUp
+	}
+
+	if r.ServiceId != nil {
+		params.ServiceID = r.ServiceId
+	}
+
+	pings, err := h.q.ListPings(ctx, params)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to fetch pings")
+	}
+
+	pbPings := make([]*pb.Ping, len(pings))
+	for i := range len(pings) {
+		pbPings[i] = mapPingDB(&pings[i])
+	}
+
+	return &pb.ListPingsResponse{Pings: pbPings}, nil
+}

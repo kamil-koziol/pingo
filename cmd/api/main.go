@@ -34,9 +34,11 @@ func main() {
 	q := db.New(conn)
 
 	serviceHandler := handler.NewServiceHandler(conn, q)
+	pingHandler := handler.NewPingHandler(conn, q)
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterServiceServiceServer(grpcServer, serviceHandler)
+	pb.RegisterPingServiceServer(grpcServer, pingHandler)
 
 	go func() {
 		log.Println("gRPC listening on", grpcAddr)
@@ -52,6 +54,10 @@ func main() {
 	grpcHP := "localhost" + grpcAddr
 
 	if err := pb.RegisterServiceServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := pb.RegisterPingServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
 		log.Fatal(err)
 	}
 

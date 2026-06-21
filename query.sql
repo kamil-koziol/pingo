@@ -23,3 +23,11 @@ SELECT * FROM services WHERE name=? LIMIT 1;
 INSERT INTO pings (service_id, status_code, latency_ms, is_up, error_message, timestamp)
 VALUES (?, ?, ?, ?, ?, ?);
 
+-- name: GetPing :one
+SELECT * FROM pings WHERE id=? LIMIT 1;
+
+-- name: ListPings :many
+SELECT * FROM pings
+WHERE (sqlc.narg(is_up) IS NULL OR is_up = sqlc.narg(is_up)) AND
+(sqlc.narg(service_id) IS NULL OR service_id = sqlc.narg(service_id));
+

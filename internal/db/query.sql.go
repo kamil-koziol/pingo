@@ -37,6 +37,25 @@ func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
 	return err
 }
 
+const getPing = `-- name: GetPing :one
+SELECT id, service_id, status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
+`
+
+func (q *Queries) GetPing(ctx context.Context, id int64) (Ping, error) {
+	row := q.db.QueryRowContext(ctx, getPing, id)
+	var i Ping
+	err := row.Scan(
+		&i.ID,
+		&i.ServiceID,
+		&i.StatusCode,
+		&i.LatencyMs,
+		&i.IsUp,
+		&i.ErrorMessage,
+		&i.Timestamp,
+	)
+	return i, err
+}
+
 const getServiceByID = `-- name: GetServiceByID :one
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE id=? LIMIT 1
 `
@@ -93,6 +112,48 @@ func (q *Queries) ListActiveServices(ctx context.Context) ([]Service, error) {
 			&i.IsActive,
 			&i.IntervalSeconds,
 			&i.ExpectedStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPings = `-- name: ListPings :many
+SELECT id, service_id, status_code, latency_ms, is_up, error_message, timestamp FROM pings
+WHERE (?1 IS NULL OR is_up = ?1) AND
+(?2 IS NULL OR service_id = ?2)
+`
+
+type ListPingsParams struct {
+	IsUp      interface{}
+	ServiceID interface{}
+}
+
+func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, error) {
+	rows, err := q.db.QueryContext(ctx, listPings, arg.IsUp, arg.ServiceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Ping
+	for rows.Next() {
+		var i Ping
+		if err := rows.Scan(
+			&i.ID,
+			&i.ServiceID,
+			&i.StatusCode,
+			&i.LatencyMs,
+			&i.IsUp,
+			&i.ErrorMessage,
+			&i.Timestamp,
 		); err != nil {
 			return nil, err
 		}
