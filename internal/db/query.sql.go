@@ -37,6 +37,110 @@ func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
 	return err
 }
 
+const getServiceByID = `-- name: GetServiceByID :one
+SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE id=? LIMIT 1
+`
+
+func (q *Queries) GetServiceByID(ctx context.Context, id int64) (Service, error) {
+	row := q.db.QueryRowContext(ctx, getServiceByID, id)
+	var i Service
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Url,
+		&i.IsActive,
+		&i.IntervalSeconds,
+		&i.ExpectedStatus,
+	)
+	return i, err
+}
+
+const getServiceByName = `-- name: GetServiceByName :one
+SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE name=? LIMIT 1
+`
+
+func (q *Queries) GetServiceByName(ctx context.Context, name string) (Service, error) {
+	row := q.db.QueryRowContext(ctx, getServiceByName, name)
+	var i Service
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Url,
+		&i.IsActive,
+		&i.IntervalSeconds,
+		&i.ExpectedStatus,
+	)
+	return i, err
+}
+
+const listActiveServices = `-- name: ListActiveServices :many
+SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE is_active=true
+`
+
+func (q *Queries) ListActiveServices(ctx context.Context) ([]Service, error) {
+	rows, err := q.db.QueryContext(ctx, listActiveServices)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Service
+	for rows.Next() {
+		var i Service
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Url,
+			&i.IsActive,
+			&i.IntervalSeconds,
+			&i.ExpectedStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listServices = `-- name: ListServices :many
+SELECT id, name, url, is_active, interval_seconds, expected_status FROM services
+`
+
+func (q *Queries) ListServices(ctx context.Context) ([]Service, error) {
+	rows, err := q.db.QueryContext(ctx, listServices)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Service
+	for rows.Next() {
+		var i Service
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Url,
+			&i.IsActive,
+			&i.IntervalSeconds,
+			&i.ExpectedStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertService = `-- name: UpsertService :one
 INSERT INTO services (name, url, interval_seconds, expected_status)
 VALUES (?, ?, ?, ?)
