@@ -1,0 +1,45 @@
+syntax = "proto3";
+package pingo.v1;
+option go_package = "github.com/kamil-koziol/pingo/gen/go/pingo/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+message Service {
+  int64 id = 1;
+  string name = 2;
+  string url = 3;
+  bool is_active = 4;
+  int32 interval_seconds = 5;
+  int32 expected_status = 6;
+}
+
+message GetServiceRequest {
+  int64 id = 1;
+}
+
+message ListServicesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListServicesResponse {
+  repeated Service services = 1;
+  string next_page_token = 2;
+}
+
+
+service ServiceService {
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc GetService(GetServiceRequest) returns (Service) {
+    option (google.api.http) = {
+      get: "/v1/services/{id}"
+    };
+  }
+
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
+    option (google.api.http) = {
+      get: "/v1/services"
+    };
+  }
+}

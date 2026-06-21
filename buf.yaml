@@ -1,0 +1,4 @@
+version: v2
+name: buf.build/kamil-koziol/pingo
+deps:
+  - buf.build/googleapis/googleapis
