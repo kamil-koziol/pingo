@@ -46,7 +46,7 @@ message Ping {
   int32 status_code = 3;
   int32 latency_ms = 4;
   bool is_up = 5;
-  string error_message = 6;
+  optional string error_message = 6;
   google.protobuf.Timestamp timestamp = 7;
 }
 

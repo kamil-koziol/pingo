@@ -262,7 +262,7 @@ type Ping struct {
 	StatusCode    int32                  `protobuf:"varint,3,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
 	LatencyMs     int32                  `protobuf:"varint,4,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
 	IsUp          bool                   `protobuf:"varint,5,opt,name=is_up,json=isUp,proto3" json:"is_up,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	ErrorMessage  *string                `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
 	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -334,8 +334,8 @@ func (x *Ping) GetIsUp() bool {
 }
 
 func (x *Ping) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
+	if x != nil && x.ErrorMessage != nil {
+		return *x.ErrorMessage
 	}
 	return ""
 }
@@ -547,7 +547,7 @@ const file_pingo_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"m\n" +
 	"\x14ListServicesResponse\x12-\n" +
 	"\bservices\x18\x01 \x03(\v2\x11.pingo.v1.ServiceR\bservices\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xe9\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x80\x02\n" +
 	"\x04Ping\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
@@ -556,9 +556,10 @@ const file_pingo_proto_rawDesc = "" +
 	"statusCode\x12\x1d\n" +
 	"\n" +
 	"latency_ms\x18\x04 \x01(\x05R\tlatencyMs\x12\x13\n" +
-	"\x05is_up\x18\x05 \x01(\bR\x04isUp\x12#\n" +
-	"\rerror_message\x18\x06 \x01(\tR\ferrorMessage\x128\n" +
-	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\" \n" +
+	"\x05is_up\x18\x05 \x01(\bR\x04isUp\x12(\n" +
+	"\rerror_message\x18\x06 \x01(\tH\x00R\ferrorMessage\x88\x01\x01\x128\n" +
+	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestampB\x10\n" +
+	"\x0e_error_message\" \n" +
 	"\x0eGetPingRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"\x8b\x03\n" +
 	"\x10ListPingsRequest\x12 \n" +
@@ -638,6 +639,7 @@ func file_pingo_proto_init() {
 	if File_pingo_proto != nil {
 		return
 	}
+	file_pingo_proto_msgTypes[4].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

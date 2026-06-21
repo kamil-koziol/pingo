@@ -27,13 +27,18 @@ type PingHandler struct {
 }
 
 func mapPingDB(ping *db.Ping) *pb.Ping {
+	var errorMessage *string = nil
+	if ping.ErrorMessage.Valid {
+		errorMessage = &ping.ErrorMessage.String
+	}
+
 	return &pb.Ping{
 		Id:           ping.ID,
 		ServiceId:    ping.ServiceID,
 		StatusCode:   int32(ping.StatusCode),
 		LatencyMs:    int32(ping.LatencyMs),
 		IsUp:         ping.IsUp,
-		ErrorMessage: ping.ErrorMessage.String,
+		ErrorMessage: errorMessage,
 		Timestamp:    timestamppb.New(ping.Timestamp),
 	}
 }
