@@ -206,7 +206,7 @@ func (x *ListServicesRequest) GetPageToken() string {
 type ListServicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Services      []*Service             `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	NextPageToken *string                `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -249,8 +249,8 @@ func (x *ListServicesResponse) GetServices() []*Service {
 }
 
 func (x *ListServicesResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
+	if x != nil && x.NextPageToken != nil {
+		return *x.NextPageToken
 	}
 	return ""
 }
@@ -478,7 +478,7 @@ func (x *ListPingsRequest) GetTimestampBefore() *timestamppb.Timestamp {
 type ListPingsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pings         []*Ping                `protobuf:"bytes,1,rep,name=pings,proto3" json:"pings,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	NextPageToken *string                `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -521,8 +521,8 @@ func (x *ListPingsResponse) GetPings() []*Ping {
 }
 
 func (x *ListPingsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
+	if x != nil && x.NextPageToken != nil {
+		return *x.NextPageToken
 	}
 	return ""
 }
@@ -544,10 +544,11 @@ const file_pingo_proto_rawDesc = "" +
 	"\x13ListServicesRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"m\n" +
+	"page_token\x18\x02 \x01(\tR\tpageToken\"\x86\x01\n" +
 	"\x14ListServicesResponse\x12-\n" +
-	"\bservices\x18\x01 \x03(\v2\x11.pingo.v1.ServiceR\bservices\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x80\x02\n" +
+	"\bservices\x18\x01 \x03(\v2\x11.pingo.v1.ServiceR\bservices\x12+\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
+	"\x10_next_page_token\"\x80\x02\n" +
 	"\x04Ping\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
@@ -577,10 +578,11 @@ const file_pingo_proto_rawDesc = "" +
 	"\v_service_idB\b\n" +
 	"\x06_is_upB\x12\n" +
 	"\x10_timestamp_afterB\x13\n" +
-	"\x11_timestamp_before\"a\n" +
+	"\x11_timestamp_before\"z\n" +
 	"\x11ListPingsResponse\x12$\n" +
-	"\x05pings\x18\x01 \x03(\v2\x0e.pingo.v1.PingR\x05pings\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xce\x01\n" +
+	"\x05pings\x18\x01 \x03(\v2\x0e.pingo.v1.PingR\x05pings\x12+\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
+	"\x10_next_page_token2\xce\x01\n" +
 	"\x0eServiceService\x12W\n" +
 	"\n" +
 	"GetService\x12\x1b.pingo.v1.GetServiceRequest\x1a\x11.pingo.v1.Service\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/services/{id}\x12c\n" +
@@ -639,8 +641,10 @@ func file_pingo_proto_init() {
 	if File_pingo_proto != nil {
 		return
 	}
+	file_pingo_proto_msgTypes[3].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[4].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[6].OneofWrappers = []any{}
+	file_pingo_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

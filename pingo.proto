@@ -26,7 +26,7 @@ message ListServicesRequest {
 
 message ListServicesResponse {
   repeated Service services = 1;
-  string next_page_token = 2;
+  optional string next_page_token = 2;
 }
 
 service ServiceService {
@@ -67,7 +67,7 @@ message ListPingsRequest {
 
 message ListPingsResponse {
   repeated Ping pings = 1;
-  string next_page_token = 2;
+  optional string next_page_token = 2;
 }
 
 service PingService {
