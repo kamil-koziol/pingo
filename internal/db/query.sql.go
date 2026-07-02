@@ -95,40 +95,6 @@ func (q *Queries) GetServiceByName(ctx context.Context, name string) (Service, e
 	return i, err
 }
 
-const listActiveServices = `-- name: ListActiveServices :many
-SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE is_active=true
-`
-
-func (q *Queries) ListActiveServices(ctx context.Context) ([]Service, error) {
-	rows, err := q.db.QueryContext(ctx, listActiveServices)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Service
-	for rows.Next() {
-		var i Service
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Url,
-			&i.IsActive,
-			&i.IntervalSeconds,
-			&i.ExpectedStatus,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listPings = `-- name: ListPings :many
 SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings
 WHERE (?1 IS NULL OR is_up = ?1) AND
