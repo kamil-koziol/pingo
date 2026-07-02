@@ -10,13 +10,14 @@ import (
 )
 
 type Ping struct {
-	ID           int64
-	ServiceID    int64
-	StatusCode   int64
-	LatencyMs    int64
-	IsUp         bool
-	ErrorMessage sql.NullString
-	Timestamp    time.Time
+	ID                 int64
+	ServiceID          int64
+	StatusCode         int64
+	ExpectedStatusCode int64
+	LatencyMs          int64
+	IsUp               bool
+	ErrorMessage       sql.NullString
+	Timestamp          time.Time
 }
 
 type Service struct {

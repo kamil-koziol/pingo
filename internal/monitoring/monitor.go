@@ -99,12 +99,13 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	}
 
 	if err = m.q.CreatePing(ctx, db.CreatePingParams{
-		ServiceID:    m.service.ID,
-		StatusCode:   int64(resp.StatusCode),
-		LatencyMs:    latency.Milliseconds(),
-		IsUp:         isUp,
-		ErrorMessage: sql.NullString{String: string(b), Valid: !isUp},
-		Timestamp:    time.Now(),
+		ServiceID:          m.service.ID,
+		StatusCode:         int64(resp.StatusCode),
+		ExpectedStatusCode: int64(m.service.ExpectedStatus),
+		LatencyMs:          latency.Milliseconds(),
+		IsUp:               isUp,
+		ErrorMessage:       sql.NullString{String: string(b), Valid: !isUp},
+		Timestamp:          time.Now(),
 	}); err != nil {
 		return fmt.Errorf("unable to create ping: %w", err)
 	}

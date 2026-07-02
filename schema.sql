@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS pings (
     id INTEGER PRIMARY KEY,
     service_id INTEGER NOT NULL,
     status_code INTEGER NOT NULL,
+    expected_status_code INTEGER NOT NULL,
     latency_ms INTEGER NOT NULL,
     is_up BOOLEAN NOT NULL,
     error_message TEXT,

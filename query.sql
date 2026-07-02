@@ -20,8 +20,8 @@ SELECT * FROM services WHERE id=? LIMIT 1;
 SELECT * FROM services WHERE name=? LIMIT 1;
 
 -- name: CreatePing :exec
-INSERT INTO pings (service_id, status_code, latency_ms, is_up, error_message, timestamp)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO pings (service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 -- name: GetPing :one
 SELECT * FROM pings WHERE id=? LIMIT 1;

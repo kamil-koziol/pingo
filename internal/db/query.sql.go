@@ -12,23 +12,25 @@ import (
 )
 
 const createPing = `-- name: CreatePing :exec
-INSERT INTO pings (service_id, status_code, latency_ms, is_up, error_message, timestamp)
-VALUES (?, ?, ?, ?, ?, ?)
+INSERT INTO pings (service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreatePingParams struct {
-	ServiceID    int64
-	StatusCode   int64
-	LatencyMs    int64
-	IsUp         bool
-	ErrorMessage sql.NullString
-	Timestamp    time.Time
+	ServiceID          int64
+	StatusCode         int64
+	ExpectedStatusCode int64
+	LatencyMs          int64
+	IsUp               bool
+	ErrorMessage       sql.NullString
+	Timestamp          time.Time
 }
 
 func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
 	_, err := q.db.ExecContext(ctx, createPing,
 		arg.ServiceID,
 		arg.StatusCode,
+		arg.ExpectedStatusCode,
 		arg.LatencyMs,
 		arg.IsUp,
 		arg.ErrorMessage,
@@ -38,7 +40,7 @@ func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
 }
 
 const getPing = `-- name: GetPing :one
-SELECT id, service_id, status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
+SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
 `
 
 func (q *Queries) GetPing(ctx context.Context, id int64) (Ping, error) {
@@ -48,6 +50,7 @@ func (q *Queries) GetPing(ctx context.Context, id int64) (Ping, error) {
 		&i.ID,
 		&i.ServiceID,
 		&i.StatusCode,
+		&i.ExpectedStatusCode,
 		&i.LatencyMs,
 		&i.IsUp,
 		&i.ErrorMessage,
@@ -127,7 +130,7 @@ func (q *Queries) ListActiveServices(ctx context.Context) ([]Service, error) {
 }
 
 const listPings = `-- name: ListPings :many
-SELECT id, service_id, status_code, latency_ms, is_up, error_message, timestamp FROM pings
+SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings
 WHERE (?1 IS NULL OR is_up = ?1) AND
 (?2 IS NULL OR service_id = ?2) AND
 (?3 IS NULL OR timestamp > ?3) AND
@@ -159,6 +162,7 @@ func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, e
 			&i.ID,
 			&i.ServiceID,
 			&i.StatusCode,
+			&i.ExpectedStatusCode,
 			&i.LatencyMs,
 			&i.IsUp,
 			&i.ErrorMessage,
