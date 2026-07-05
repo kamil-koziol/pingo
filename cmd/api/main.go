@@ -4,13 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	pb "github.com/kamil-koziol/pingo/gen/go"
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/handler"
+	"github.com/kamil-koziol/pingo/internal/middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	_ "modernc.org/sqlite"
@@ -36,14 +39,17 @@ func main() {
 	serviceHandler := handler.NewServiceHandler(conn, q)
 	pingHandler := handler.NewPingHandler(conn, q)
 
-	grpcServer := grpc.NewServer()
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(middleware.LoggingInterceptor(logger)),
+	)
 	pb.RegisterServiceServiceServer(grpcServer, serviceHandler)
 	pb.RegisterPingServiceServer(grpcServer, pingHandler)
 
 	go func() {
-		log.Println("gRPC listening on", grpcAddr)
+		logger.Info("gRPC listening on", "addr", grpcAddr)
 		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatal(err)
+			logger.Error("error occured", "err", err)
 		}
 	}()
 
@@ -61,6 +67,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("HTTP JSON listening on", httpAddr)
-	log.Fatal(http.ListenAndServe(httpAddr, mux))
+	logger.Info("HTTP JSON listening on", "addr", httpAddr)
+	err = http.ListenAndServe(httpAddr, mux)
+	if err != nil {
+		logger.Error("error occured", "err", err)
+	}
 }
