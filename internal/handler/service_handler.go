@@ -24,7 +24,7 @@ type ServiceHandler struct {
 	q  *db.Queries
 }
 
-func mapServiceDB(service *db.Service) *pb.Service {
+func mapServiceDB(service *db.Service, latestPing *db.Ping) *pb.Service {
 	return &pb.Service{
 		Id:              service.ID,
 		Name:            service.Name,
@@ -32,6 +32,7 @@ func mapServiceDB(service *db.Service) *pb.Service {
 		IsActive:        service.IsActive,
 		IntervalSeconds: int32(service.IntervalSeconds),
 		ExpectedStatus:  int32(service.ExpectedStatus),
+		LatestPing:      mapPingDB(latestPing),
 	}
 }
 
@@ -45,7 +46,17 @@ func (h *ServiceHandler) GetService(ctx context.Context, r *pb.GetServiceRequest
 		return nil, status.Error(codes.Internal, "failed to fetch service")
 	}
 
-	return mapServiceDB(&service), nil
+	latestPings, err := h.q.ListLatestPings(ctx, []int64{service.ID})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to fetch latest ping")
+	}
+
+	var latestPing *db.Ping
+	if len(latestPings) != 0 {
+		latestPing = &latestPings[0].Ping
+	}
+
+	return mapServiceDB(&service, latestPing), nil
 }
 
 func (h *ServiceHandler) ListServices(ctx context.Context, r *pb.ListServicesRequest) (*pb.ListServicesResponse, error) {
@@ -54,9 +65,24 @@ func (h *ServiceHandler) ListServices(ctx context.Context, r *pb.ListServicesReq
 		return nil, status.Error(codes.Internal, "failed to fetch services")
 	}
 
+	servicesIds := make([]int64, len(services))
+	for i, service := range services {
+		servicesIds[i] = service.ID
+	}
+
+	latestPings, err := h.q.ListLatestPings(ctx, servicesIds)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to fetch latest pings")
+	}
+
+	latestPingsByService := make(map[int64]*db.Ping)
+	for i, ping := range latestPings {
+		latestPingsByService[ping.Ping.ServiceID] = &latestPings[i].Ping
+	}
+
 	pbServices := make([]*pb.Service, len(services))
 	for i := range len(services) {
-		pbServices[i] = mapServiceDB(&services[i])
+		pbServices[i] = mapServiceDB(&services[i], latestPingsByService[services[i].ID])
 	}
 
 	return &pb.ListServicesResponse{Services: pbServices}, nil

@@ -29,3 +29,9 @@ WHERE (sqlc.narg(is_up) IS NULL OR is_up = sqlc.narg(is_up)) AND
 (sqlc.narg(service_id) IS NULL OR service_id = sqlc.narg(service_id)) AND
 (sqlc.narg(timestamp_after) IS NULL OR timestamp > sqlc.narg(timestamp_after)) AND
 (sqlc.narg(timestamp_before) IS NULL OR timestamp < sqlc.narg(timestamp_before));
+
+-- name: ListLatestPings :many
+SELECT sqlc.embed(pings), MAX(timestamp)
+FROM pings
+WHERE service_id IN (sqlc.slice('service_ids'))
+GROUP BY service_id;

@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -93,6 +94,61 @@ func (q *Queries) GetServiceByName(ctx context.Context, name string) (Service, e
 		&i.ExpectedStatus,
 	)
 	return i, err
+}
+
+const listLatestPings = `-- name: ListLatestPings :many
+SELECT pings.id, pings.service_id, pings.status_code, pings.expected_status_code, pings.latency_ms, pings.is_up, pings.error_message, pings.timestamp, MAX(timestamp)
+FROM pings
+WHERE service_id IN (/*SLICE:service_ids*/?)
+GROUP BY service_id
+`
+
+type ListLatestPingsRow struct {
+	Ping Ping
+	Max  interface{}
+}
+
+func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]ListLatestPingsRow, error) {
+	query := listLatestPings
+	var queryParams []interface{}
+	if len(serviceIds) > 0 {
+		for _, v := range serviceIds {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:service_ids*/?", strings.Repeat(",?", len(serviceIds))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:service_ids*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListLatestPingsRow
+	for rows.Next() {
+		var i ListLatestPingsRow
+		if err := rows.Scan(
+			&i.Ping.ID,
+			&i.Ping.ServiceID,
+			&i.Ping.StatusCode,
+			&i.Ping.ExpectedStatusCode,
+			&i.Ping.LatencyMs,
+			&i.Ping.IsUp,
+			&i.Ping.ErrorMessage,
+			&i.Ping.Timestamp,
+			&i.Max,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listPings = `-- name: ListPings :many

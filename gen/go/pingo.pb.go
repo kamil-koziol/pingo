@@ -31,6 +31,7 @@ type Service struct {
 	IsActive        bool                   `protobuf:"varint,4,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	IntervalSeconds int32                  `protobuf:"varint,5,opt,name=interval_seconds,json=intervalSeconds,proto3" json:"interval_seconds,omitempty"`
 	ExpectedStatus  int32                  `protobuf:"varint,6,opt,name=expected_status,json=expectedStatus,proto3" json:"expected_status,omitempty"`
+	LatestPing      *Ping                  `protobuf:"bytes,7,opt,name=latest_ping,json=latestPing,proto3,oneof" json:"latest_ping,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -105,6 +106,13 @@ func (x *Service) GetExpectedStatus() int32 {
 		return x.ExpectedStatus
 	}
 	return 0
+}
+
+func (x *Service) GetLatestPing() *Ping {
+	if x != nil {
+		return x.LatestPing
+	}
+	return nil
 }
 
 type GetServiceRequest struct {
@@ -256,16 +264,17 @@ func (x *ListServicesResponse) GetNextPageToken() string {
 }
 
 type Ping struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ServiceId     int64                  `protobuf:"varint,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	StatusCode    int32                  `protobuf:"varint,3,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
-	LatencyMs     int32                  `protobuf:"varint,4,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
-	IsUp          bool                   `protobuf:"varint,5,opt,name=is_up,json=isUp,proto3" json:"is_up,omitempty"`
-	ErrorMessage  *string                `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ServiceId          int64                  `protobuf:"varint,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	StatusCode         int32                  `protobuf:"varint,3,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	LatencyMs          int32                  `protobuf:"varint,4,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
+	IsUp               bool                   `protobuf:"varint,5,opt,name=is_up,json=isUp,proto3" json:"is_up,omitempty"`
+	ErrorMessage       *string                `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	Timestamp          *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	ExpectedStatusCode int32                  `protobuf:"varint,8,opt,name=expected_status_code,json=expectedStatusCode,proto3" json:"expected_status_code,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Ping) Reset() {
@@ -345,6 +354,13 @@ func (x *Ping) GetTimestamp() *timestamppb.Timestamp {
 		return x.Timestamp
 	}
 	return nil
+}
+
+func (x *Ping) GetExpectedStatusCode() int32 {
+	if x != nil {
+		return x.ExpectedStatusCode
+	}
+	return 0
 }
 
 type GetPingRequest struct {
@@ -531,14 +547,17 @@ var File_pingo_proto protoreflect.FileDescriptor
 
 const file_pingo_proto_rawDesc = "" +
 	"\n" +
-	"\vpingo.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb0\x01\n" +
+	"\vpingo.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf6\x01\n" +
 	"\aService\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\x12\x1b\n" +
 	"\tis_active\x18\x04 \x01(\bR\bisActive\x12)\n" +
 	"\x10interval_seconds\x18\x05 \x01(\x05R\x0fintervalSeconds\x12'\n" +
-	"\x0fexpected_status\x18\x06 \x01(\x05R\x0eexpectedStatus\"#\n" +
+	"\x0fexpected_status\x18\x06 \x01(\x05R\x0eexpectedStatus\x124\n" +
+	"\vlatest_ping\x18\a \x01(\v2\x0e.pingo.v1.PingH\x00R\n" +
+	"latestPing\x88\x01\x01B\x0e\n" +
+	"\f_latest_ping\"#\n" +
 	"\x11GetServiceRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"Q\n" +
 	"\x13ListServicesRequest\x12\x1b\n" +
@@ -548,7 +567,7 @@ const file_pingo_proto_rawDesc = "" +
 	"\x14ListServicesResponse\x12-\n" +
 	"\bservices\x18\x01 \x03(\v2\x11.pingo.v1.ServiceR\bservices\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\x80\x02\n" +
+	"\x10_next_page_token\"\xb2\x02\n" +
 	"\x04Ping\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
@@ -559,7 +578,8 @@ const file_pingo_proto_rawDesc = "" +
 	"latency_ms\x18\x04 \x01(\x05R\tlatencyMs\x12\x13\n" +
 	"\x05is_up\x18\x05 \x01(\bR\x04isUp\x12(\n" +
 	"\rerror_message\x18\x06 \x01(\tH\x00R\ferrorMessage\x88\x01\x01\x128\n" +
-	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestampB\x10\n" +
+	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x120\n" +
+	"\x14expected_status_code\x18\b \x01(\x05R\x12expectedStatusCodeB\x10\n" +
 	"\x0e_error_message\" \n" +
 	"\x0eGetPingRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"\x8b\x03\n" +
@@ -616,24 +636,25 @@ var file_pingo_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_pingo_proto_depIdxs = []int32{
-	0, // 0: pingo.v1.ListServicesResponse.services:type_name -> pingo.v1.Service
-	8, // 1: pingo.v1.Ping.timestamp:type_name -> google.protobuf.Timestamp
-	8, // 2: pingo.v1.ListPingsRequest.timestamp_after:type_name -> google.protobuf.Timestamp
-	8, // 3: pingo.v1.ListPingsRequest.timestamp_before:type_name -> google.protobuf.Timestamp
-	4, // 4: pingo.v1.ListPingsResponse.pings:type_name -> pingo.v1.Ping
-	1, // 5: pingo.v1.ServiceService.GetService:input_type -> pingo.v1.GetServiceRequest
-	2, // 6: pingo.v1.ServiceService.ListServices:input_type -> pingo.v1.ListServicesRequest
-	5, // 7: pingo.v1.PingService.GetPing:input_type -> pingo.v1.GetPingRequest
-	6, // 8: pingo.v1.PingService.ListPings:input_type -> pingo.v1.ListPingsRequest
-	0, // 9: pingo.v1.ServiceService.GetService:output_type -> pingo.v1.Service
-	3, // 10: pingo.v1.ServiceService.ListServices:output_type -> pingo.v1.ListServicesResponse
-	4, // 11: pingo.v1.PingService.GetPing:output_type -> pingo.v1.Ping
-	7, // 12: pingo.v1.PingService.ListPings:output_type -> pingo.v1.ListPingsResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4,  // 0: pingo.v1.Service.latest_ping:type_name -> pingo.v1.Ping
+	0,  // 1: pingo.v1.ListServicesResponse.services:type_name -> pingo.v1.Service
+	8,  // 2: pingo.v1.Ping.timestamp:type_name -> google.protobuf.Timestamp
+	8,  // 3: pingo.v1.ListPingsRequest.timestamp_after:type_name -> google.protobuf.Timestamp
+	8,  // 4: pingo.v1.ListPingsRequest.timestamp_before:type_name -> google.protobuf.Timestamp
+	4,  // 5: pingo.v1.ListPingsResponse.pings:type_name -> pingo.v1.Ping
+	1,  // 6: pingo.v1.ServiceService.GetService:input_type -> pingo.v1.GetServiceRequest
+	2,  // 7: pingo.v1.ServiceService.ListServices:input_type -> pingo.v1.ListServicesRequest
+	5,  // 8: pingo.v1.PingService.GetPing:input_type -> pingo.v1.GetPingRequest
+	6,  // 9: pingo.v1.PingService.ListPings:input_type -> pingo.v1.ListPingsRequest
+	0,  // 10: pingo.v1.ServiceService.GetService:output_type -> pingo.v1.Service
+	3,  // 11: pingo.v1.ServiceService.ListServices:output_type -> pingo.v1.ListServicesResponse
+	4,  // 12: pingo.v1.PingService.GetPing:output_type -> pingo.v1.Ping
+	7,  // 13: pingo.v1.PingService.ListPings:output_type -> pingo.v1.ListPingsResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_pingo_proto_init() }
@@ -641,6 +662,7 @@ func file_pingo_proto_init() {
 	if File_pingo_proto != nil {
 		return
 	}
+	file_pingo_proto_msgTypes[0].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[3].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[4].OneofWrappers = []any{}
 	file_pingo_proto_msgTypes[6].OneofWrappers = []any{}

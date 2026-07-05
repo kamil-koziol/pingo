@@ -13,6 +13,7 @@ message Service {
   bool is_active = 4;
   int32 interval_seconds = 5;
   int32 expected_status = 6;
+  optional Ping latest_ping = 7;
 }
 
 message GetServiceRequest {
@@ -48,6 +49,7 @@ message Ping {
   bool is_up = 5;
   optional string error_message = 6;
   google.protobuf.Timestamp timestamp = 7;
+  int32 expected_status_code = 8;
 }
 
 message GetPingRequest {
@@ -60,7 +62,7 @@ message ListPingsRequest {
 
   optional int64 service_id = 3;
   optional bool is_up = 4;
-  
+
   optional google.protobuf.Timestamp timestamp_after = 5;
   optional google.protobuf.Timestamp timestamp_before = 6;
 }
