@@ -40,6 +40,30 @@ func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
 	return err
 }
 
+const getLatestServicePing = `-- name: GetLatestServicePing :one
+SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp
+FROM pings
+WHERE service_id=?
+ORDER BY timestamp DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLatestServicePing(ctx context.Context, serviceID int64) (Ping, error) {
+	row := q.db.QueryRowContext(ctx, getLatestServicePing, serviceID)
+	var i Ping
+	err := row.Scan(
+		&i.ID,
+		&i.ServiceID,
+		&i.StatusCode,
+		&i.ExpectedStatusCode,
+		&i.LatencyMs,
+		&i.IsUp,
+		&i.ErrorMessage,
+		&i.Timestamp,
+	)
+	return i, err
+}
+
 const getPing = `-- name: GetPing :one
 SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
 `

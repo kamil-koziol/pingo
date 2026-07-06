@@ -46,17 +46,12 @@ func (h *ServiceHandler) GetService(ctx context.Context, r *pb.GetServiceRequest
 		return nil, status.Error(codes.Internal, "failed to fetch service")
 	}
 
-	latestPings, err := h.q.ListLatestPings(ctx, []int64{service.ID})
+	latestPing, err := h.q.GetLatestServicePing(ctx, service.ID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to fetch latest ping")
 	}
 
-	var latestPing *db.Ping
-	if len(latestPings) != 0 {
-		latestPing = &latestPings[0].Ping
-	}
-
-	return mapServiceDB(&service, latestPing), nil
+	return mapServiceDB(&service, &latestPing), nil
 }
 
 func (h *ServiceHandler) ListServices(ctx context.Context, r *pb.ListServicesRequest) (*pb.ListServicesResponse, error) {

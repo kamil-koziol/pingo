@@ -35,3 +35,10 @@ SELECT sqlc.embed(pings), MAX(timestamp)
 FROM pings
 WHERE service_id IN (sqlc.slice('service_ids'))
 GROUP BY service_id;
+
+-- name: GetLatestServicePing :one
+SELECT *
+FROM pings
+WHERE service_id=?
+ORDER BY timestamp DESC
+LIMIT 1;
