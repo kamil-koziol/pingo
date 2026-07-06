@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	pb "github.com/kamil-koziol/pingo/gen/go"
+	pb "github.com/kamil-koziol/pingo/gen/go/pingo/v1"
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/handler"
 	"github.com/kamil-koziol/pingo/internal/middleware"

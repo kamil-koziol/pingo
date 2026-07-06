@@ -1,4 +1,6 @@
 version: v2
-name: buf.build/kamil-koziol/pingo
+
+modules:
+  - path: proto
 deps:
   - buf.build/googleapis/googleapis

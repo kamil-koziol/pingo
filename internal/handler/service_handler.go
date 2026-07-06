@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	pb "github.com/kamil-koziol/pingo/gen/go"
+	pb "github.com/kamil-koziol/pingo/gen/go/pingo/v1"
 	"github.com/kamil-koziol/pingo/internal/db"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             (unknown)
-// source: pingo.proto
+// source: pingo/v1/api.proto
 
 package v1
 
@@ -157,7 +157,7 @@ var ServiceService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "pingo.proto",
+	Metadata: "pingo/v1/api.proto",
 }
 
 const (
@@ -299,5 +299,5 @@ var PingService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "pingo.proto",
+	Metadata: "pingo/v1/api.proto",
 }

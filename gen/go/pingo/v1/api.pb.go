@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: pingo.proto
+// source: pingo/v1/api.proto
 
 package v1
 
@@ -38,7 +38,7 @@ type Service struct {
 
 func (x *Service) Reset() {
 	*x = Service{}
-	mi := &file_pingo_proto_msgTypes[0]
+	mi := &file_pingo_v1_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -50,7 +50,7 @@ func (x *Service) String() string {
 func (*Service) ProtoMessage() {}
 
 func (x *Service) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[0]
+	mi := &file_pingo_v1_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -63,7 +63,7 @@ func (x *Service) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Service.ProtoReflect.Descriptor instead.
 func (*Service) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{0}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Service) GetId() int64 {
@@ -124,7 +124,7 @@ type GetServiceRequest struct {
 
 func (x *GetServiceRequest) Reset() {
 	*x = GetServiceRequest{}
-	mi := &file_pingo_proto_msgTypes[1]
+	mi := &file_pingo_v1_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +136,7 @@ func (x *GetServiceRequest) String() string {
 func (*GetServiceRequest) ProtoMessage() {}
 
 func (x *GetServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[1]
+	mi := &file_pingo_v1_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +149,7 @@ func (x *GetServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServiceRequest.ProtoReflect.Descriptor instead.
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{1}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetServiceRequest) GetId() int64 {
@@ -169,7 +169,7 @@ type ListServicesRequest struct {
 
 func (x *ListServicesRequest) Reset() {
 	*x = ListServicesRequest{}
-	mi := &file_pingo_proto_msgTypes[2]
+	mi := &file_pingo_v1_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -181,7 +181,7 @@ func (x *ListServicesRequest) String() string {
 func (*ListServicesRequest) ProtoMessage() {}
 
 func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[2]
+	mi := &file_pingo_v1_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -194,7 +194,7 @@ func (x *ListServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{2}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListServicesRequest) GetPageSize() int32 {
@@ -221,7 +221,7 @@ type ListServicesResponse struct {
 
 func (x *ListServicesResponse) Reset() {
 	*x = ListServicesResponse{}
-	mi := &file_pingo_proto_msgTypes[3]
+	mi := &file_pingo_v1_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +233,7 @@ func (x *ListServicesResponse) String() string {
 func (*ListServicesResponse) ProtoMessage() {}
 
 func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[3]
+	mi := &file_pingo_v1_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +246,7 @@ func (x *ListServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{3}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListServicesResponse) GetServices() []*Service {
@@ -279,7 +279,7 @@ type Ping struct {
 
 func (x *Ping) Reset() {
 	*x = Ping{}
-	mi := &file_pingo_proto_msgTypes[4]
+	mi := &file_pingo_v1_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -291,7 +291,7 @@ func (x *Ping) String() string {
 func (*Ping) ProtoMessage() {}
 
 func (x *Ping) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[4]
+	mi := &file_pingo_v1_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -304,7 +304,7 @@ func (x *Ping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ping.ProtoReflect.Descriptor instead.
 func (*Ping) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{4}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Ping) GetId() int64 {
@@ -372,7 +372,7 @@ type GetPingRequest struct {
 
 func (x *GetPingRequest) Reset() {
 	*x = GetPingRequest{}
-	mi := &file_pingo_proto_msgTypes[5]
+	mi := &file_pingo_v1_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -384,7 +384,7 @@ func (x *GetPingRequest) String() string {
 func (*GetPingRequest) ProtoMessage() {}
 
 func (x *GetPingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[5]
+	mi := &file_pingo_v1_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -397,7 +397,7 @@ func (x *GetPingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPingRequest.ProtoReflect.Descriptor instead.
 func (*GetPingRequest) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{5}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetPingRequest) GetId() int64 {
@@ -421,7 +421,7 @@ type ListPingsRequest struct {
 
 func (x *ListPingsRequest) Reset() {
 	*x = ListPingsRequest{}
-	mi := &file_pingo_proto_msgTypes[6]
+	mi := &file_pingo_v1_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +433,7 @@ func (x *ListPingsRequest) String() string {
 func (*ListPingsRequest) ProtoMessage() {}
 
 func (x *ListPingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[6]
+	mi := &file_pingo_v1_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +446,7 @@ func (x *ListPingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPingsRequest.ProtoReflect.Descriptor instead.
 func (*ListPingsRequest) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{6}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListPingsRequest) GetPageSize() int32 {
@@ -501,7 +501,7 @@ type ListPingsResponse struct {
 
 func (x *ListPingsResponse) Reset() {
 	*x = ListPingsResponse{}
-	mi := &file_pingo_proto_msgTypes[7]
+	mi := &file_pingo_v1_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -513,7 +513,7 @@ func (x *ListPingsResponse) String() string {
 func (*ListPingsResponse) ProtoMessage() {}
 
 func (x *ListPingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pingo_proto_msgTypes[7]
+	mi := &file_pingo_v1_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -526,7 +526,7 @@ func (x *ListPingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPingsResponse.ProtoReflect.Descriptor instead.
 func (*ListPingsResponse) Descriptor() ([]byte, []int) {
-	return file_pingo_proto_rawDescGZIP(), []int{7}
+	return file_pingo_v1_api_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListPingsResponse) GetPings() []*Ping {
@@ -543,11 +543,11 @@ func (x *ListPingsResponse) GetNextPageToken() string {
 	return ""
 }
 
-var File_pingo_proto protoreflect.FileDescriptor
+var File_pingo_v1_api_proto protoreflect.FileDescriptor
 
-const file_pingo_proto_rawDesc = "" +
+const file_pingo_v1_api_proto_rawDesc = "" +
 	"\n" +
-	"\vpingo.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf6\x01\n" +
+	"\x12pingo/v1/api.proto\x12\bpingo.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf6\x01\n" +
 	"\aService\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -612,19 +612,19 @@ const file_pingo_proto_rawDesc = "" +
 	"\tListPings\x12\x1a.pingo.v1.ListPingsRequest\x1a\x1b.pingo.v1.ListPingsResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/pingsB/Z-github.com/kamil-koziol/pingo/gen/go/pingo/v1b\x06proto3"
 
 var (
-	file_pingo_proto_rawDescOnce sync.Once
-	file_pingo_proto_rawDescData []byte
+	file_pingo_v1_api_proto_rawDescOnce sync.Once
+	file_pingo_v1_api_proto_rawDescData []byte
 )
 
-func file_pingo_proto_rawDescGZIP() []byte {
-	file_pingo_proto_rawDescOnce.Do(func() {
-		file_pingo_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_pingo_proto_rawDesc), len(file_pingo_proto_rawDesc)))
+func file_pingo_v1_api_proto_rawDescGZIP() []byte {
+	file_pingo_v1_api_proto_rawDescOnce.Do(func() {
+		file_pingo_v1_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_pingo_v1_api_proto_rawDesc), len(file_pingo_v1_api_proto_rawDesc)))
 	})
-	return file_pingo_proto_rawDescData
+	return file_pingo_v1_api_proto_rawDescData
 }
 
-var file_pingo_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_pingo_proto_goTypes = []any{
+var file_pingo_v1_api_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_pingo_v1_api_proto_goTypes = []any{
 	(*Service)(nil),               // 0: pingo.v1.Service
 	(*GetServiceRequest)(nil),     // 1: pingo.v1.GetServiceRequest
 	(*ListServicesRequest)(nil),   // 2: pingo.v1.ListServicesRequest
@@ -635,7 +635,7 @@ var file_pingo_proto_goTypes = []any{
 	(*ListPingsResponse)(nil),     // 7: pingo.v1.ListPingsResponse
 	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
-var file_pingo_proto_depIdxs = []int32{
+var file_pingo_v1_api_proto_depIdxs = []int32{
 	4,  // 0: pingo.v1.Service.latest_ping:type_name -> pingo.v1.Ping
 	0,  // 1: pingo.v1.ListServicesResponse.services:type_name -> pingo.v1.Service
 	8,  // 2: pingo.v1.Ping.timestamp:type_name -> google.protobuf.Timestamp
@@ -657,31 +657,31 @@ var file_pingo_proto_depIdxs = []int32{
 	0,  // [0:6] is the sub-list for field type_name
 }
 
-func init() { file_pingo_proto_init() }
-func file_pingo_proto_init() {
-	if File_pingo_proto != nil {
+func init() { file_pingo_v1_api_proto_init() }
+func file_pingo_v1_api_proto_init() {
+	if File_pingo_v1_api_proto != nil {
 		return
 	}
-	file_pingo_proto_msgTypes[0].OneofWrappers = []any{}
-	file_pingo_proto_msgTypes[3].OneofWrappers = []any{}
-	file_pingo_proto_msgTypes[4].OneofWrappers = []any{}
-	file_pingo_proto_msgTypes[6].OneofWrappers = []any{}
-	file_pingo_proto_msgTypes[7].OneofWrappers = []any{}
+	file_pingo_v1_api_proto_msgTypes[0].OneofWrappers = []any{}
+	file_pingo_v1_api_proto_msgTypes[3].OneofWrappers = []any{}
+	file_pingo_v1_api_proto_msgTypes[4].OneofWrappers = []any{}
+	file_pingo_v1_api_proto_msgTypes[6].OneofWrappers = []any{}
+	file_pingo_v1_api_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pingo_proto_rawDesc), len(file_pingo_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pingo_v1_api_proto_rawDesc), len(file_pingo_v1_api_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
-		GoTypes:           file_pingo_proto_goTypes,
-		DependencyIndexes: file_pingo_proto_depIdxs,
-		MessageInfos:      file_pingo_proto_msgTypes,
+		GoTypes:           file_pingo_v1_api_proto_goTypes,
+		DependencyIndexes: file_pingo_v1_api_proto_depIdxs,
+		MessageInfos:      file_pingo_v1_api_proto_msgTypes,
 	}.Build()
-	File_pingo_proto = out.File
-	file_pingo_proto_goTypes = nil
-	file_pingo_proto_depIdxs = nil
+	File_pingo_v1_api_proto = out.File
+	file_pingo_v1_api_proto_goTypes = nil
+	file_pingo_v1_api_proto_depIdxs = nil
 }
