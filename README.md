@@ -3,3 +3,57 @@
 A dead-simple, single-binary uptime monitor built in Go. 
 
 Pingo is designed for developers who want a lightweight, self-hosted alternative to heavy monitoring platforms. It reads a simple YAML file, pings your websites and APIs, stores the results in a local SQLite database, and alerts you via email or webhook if anything goes offline.
+
+## Configuration
+
+The application is configured using a `config.yml` file.
+
+### Health Checks
+
+Define the services you want to monitor under the `checks` section.
+
+Each check supports:
+
+- `name` — A human-readable name for the service.
+- `url` — The endpoint to check.
+- `interval` — How often the check should run.
+- `expected_status` — The expected HTTP response status code. Default: 200
+
+Example:
+
+```yaml
+checks:
+  - name: "Auth API"
+    url: "https://example.com"
+    interval: 60s
+    expected_status: 200
+
+  - name: "Google"
+    url: "https://google.com"
+    interval: 30s
+    expected_status: 200
+```
+
+### Alerts
+
+The application supports multiple alerting backends.
+
+#### Telegram
+
+To enable Telegram notifications, provide your bot token and chat ID.
+
+Example:
+
+```yaml
+alerts:
+  - name: "Your telegram bot"
+    type: "telegram"
+    config:
+      bot_token: "your_bot_token"
+      chat_id: "your_chat_id"
+```
+
+**Creating a Telegram Bot**
+
+1. Create a new bot using [BotFather](https://telegram.me/BotFather)
+2. Obtain the chat ID: `https://api.telegram.org/bot<bot_token>/getUpdates`
