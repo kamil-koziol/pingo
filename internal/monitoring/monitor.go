@@ -79,7 +79,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	log := slog.Default()
 	log = log.With("cid", cid)
 
-	log.InfoContext(ctx, "checking", "url", m.service.Url)
+	log.InfoContext(ctx, "checking", "url", m.service.Url, "service", m.service.Name)
 
 	start := time.Now()
 	resp, err := m.Call(ctx)
