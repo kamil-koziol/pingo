@@ -48,7 +48,7 @@ ORDER BY timestamp DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLatestServicePing(ctx context.Context, serviceID int64) (Ping, error) {
+func (q *Queries) GetLatestServicePing(ctx context.Context, serviceID int64) (*Ping, error) {
 	row := q.db.QueryRowContext(ctx, getLatestServicePing, serviceID)
 	var i Ping
 	err := row.Scan(
@@ -61,14 +61,14 @@ func (q *Queries) GetLatestServicePing(ctx context.Context, serviceID int64) (Pi
 		&i.ErrorMessage,
 		&i.Timestamp,
 	)
-	return i, err
+	return &i, err
 }
 
 const getPing = `-- name: GetPing :one
 SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
 `
 
-func (q *Queries) GetPing(ctx context.Context, id int64) (Ping, error) {
+func (q *Queries) GetPing(ctx context.Context, id int64) (*Ping, error) {
 	row := q.db.QueryRowContext(ctx, getPing, id)
 	var i Ping
 	err := row.Scan(
@@ -81,14 +81,14 @@ func (q *Queries) GetPing(ctx context.Context, id int64) (Ping, error) {
 		&i.ErrorMessage,
 		&i.Timestamp,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServiceByID = `-- name: GetServiceByID :one
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE id=? LIMIT 1
 `
 
-func (q *Queries) GetServiceByID(ctx context.Context, id int64) (Service, error) {
+func (q *Queries) GetServiceByID(ctx context.Context, id int64) (*Service, error) {
 	row := q.db.QueryRowContext(ctx, getServiceByID, id)
 	var i Service
 	err := row.Scan(
@@ -99,14 +99,14 @@ func (q *Queries) GetServiceByID(ctx context.Context, id int64) (Service, error)
 		&i.IntervalSeconds,
 		&i.ExpectedStatus,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServiceByName = `-- name: GetServiceByName :one
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE name=? LIMIT 1
 `
 
-func (q *Queries) GetServiceByName(ctx context.Context, name string) (Service, error) {
+func (q *Queries) GetServiceByName(ctx context.Context, name string) (*Service, error) {
 	row := q.db.QueryRowContext(ctx, getServiceByName, name)
 	var i Service
 	err := row.Scan(
@@ -117,7 +117,7 @@ func (q *Queries) GetServiceByName(ctx context.Context, name string) (Service, e
 		&i.IntervalSeconds,
 		&i.ExpectedStatus,
 	)
-	return i, err
+	return &i, err
 }
 
 const listLatestPings = `-- name: ListLatestPings :many
@@ -132,7 +132,7 @@ type ListLatestPingsRow struct {
 	Max  interface{}
 }
 
-func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]ListLatestPingsRow, error) {
+func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]*ListLatestPingsRow, error) {
 	query := listLatestPings
 	var queryParams []interface{}
 	if len(serviceIds) > 0 {
@@ -148,7 +148,7 @@ func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]Li
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListLatestPingsRow
+	var items []*ListLatestPingsRow
 	for rows.Next() {
 		var i ListLatestPingsRow
 		if err := rows.Scan(
@@ -164,7 +164,7 @@ func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]Li
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -190,7 +190,7 @@ type ListPingsParams struct {
 	TimestampBefore interface{}
 }
 
-func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, error) {
+func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]*Ping, error) {
 	rows, err := q.db.QueryContext(ctx, listPings,
 		arg.IsUp,
 		arg.ServiceID,
@@ -201,7 +201,7 @@ func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, e
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Ping
+	var items []*Ping
 	for rows.Next() {
 		var i Ping
 		if err := rows.Scan(
@@ -216,7 +216,7 @@ func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]Ping, e
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -231,13 +231,13 @@ const listServices = `-- name: ListServices :many
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services
 `
 
-func (q *Queries) ListServices(ctx context.Context) ([]Service, error) {
+func (q *Queries) ListServices(ctx context.Context) ([]*Service, error) {
 	rows, err := q.db.QueryContext(ctx, listServices)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Service
+	var items []*Service
 	for rows.Next() {
 		var i Service
 		if err := rows.Scan(
@@ -250,7 +250,7 @@ func (q *Queries) ListServices(ctx context.Context) ([]Service, error) {
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -278,7 +278,7 @@ type UpsertServiceParams struct {
 	ExpectedStatus  int64
 }
 
-func (q *Queries) UpsertService(ctx context.Context, arg UpsertServiceParams) (Service, error) {
+func (q *Queries) UpsertService(ctx context.Context, arg UpsertServiceParams) (*Service, error) {
 	row := q.db.QueryRowContext(ctx, upsertService,
 		arg.Name,
 		arg.Url,
@@ -294,5 +294,5 @@ func (q *Queries) UpsertService(ctx context.Context, arg UpsertServiceParams) (S
 		&i.IntervalSeconds,
 		&i.ExpectedStatus,
 	)
-	return i, err
+	return &i, err
 }

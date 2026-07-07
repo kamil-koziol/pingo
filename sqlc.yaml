@@ -7,4 +7,5 @@ sql:
       go:
         package: "db"
         out: "internal/db"
+        emit_result_struct_pointers: true
 
