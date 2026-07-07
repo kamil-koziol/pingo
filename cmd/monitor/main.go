@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	_ "embed"
 	"log"
 	"log/slog"
@@ -14,9 +13,6 @@ import (
 	"github.com/kamil-koziol/pingo/internal/monitoring"
 	_ "modernc.org/sqlite"
 )
-
-//go:embed schema.sql
-var ddl string
 
 func main() {
 	f, err := os.Open("config.yml")
@@ -44,15 +40,10 @@ func main() {
 	logger := slog.Default()
 	alerter = alerting.NewLoggingAlerter(logger, alerter)
 
-	conn, err := sql.Open("sqlite", "pingo.db")
-	if err != nil {
-		log.Fatalf("unable to open db: %v", err)
-	}
-
-	// create tables
 	ctx := context.Background()
-	if _, err := conn.ExecContext(ctx, ddl); err != nil {
-		log.Fatalf("unable to migrate db: %v", err)
+	conn, err := db.Create(ctx)
+	if err != nil {
+		log.Fatalf("unable to create db: %v", err)
 	}
 
 	q := db.New(conn)
