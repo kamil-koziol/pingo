@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/kamil-koziol/pingo/internal/alerting"
 	"gopkg.in/yaml.v3"
 )
 
@@ -16,8 +17,26 @@ type Check struct {
 	ExpectedStatus int
 }
 
+type AlerterConfig interface {
+	Build() (alerting.Alerter, error)
+}
+
 type Config struct {
 	Checks []Check
+	Alerts []AlerterConfig
+}
+
+type TelegramConfig struct {
+	Name     string
+	BotToken string
+	ChatID   string
+}
+
+func (t *TelegramConfig) Build() (alerting.Alerter, error) {
+	return &alerting.TelegramAlerter{
+		BotToken: t.BotToken,
+		ChatID:   t.ChatID,
+	}, nil
 }
 
 func Parse(r io.Reader) (*Config, error) {
@@ -28,6 +47,7 @@ func Parse(r io.Reader) (*Config, error) {
 
 	config := &Config{
 		Checks: make([]Check, 0, len(raw.Checks)),
+		Alerts: make([]AlerterConfig, 0, len(raw.Alerts)),
 	}
 
 	for _, c := range raw.Checks {
@@ -47,6 +67,28 @@ func Parse(r io.Reader) (*Config, error) {
 			Interval:       d,
 			ExpectedStatus: c.ExpectedStatus,
 		})
+	}
+
+	for _, a := range raw.Alerts {
+		switch a.Type {
+		case "telegram":
+			var cfg struct {
+				BotToken string `yaml:"bot_token"`
+				ChatID   string `yaml:"chat_id"`
+			}
+
+			if err := a.Config.Decode(&cfg); err != nil {
+				return nil, err
+			}
+
+			config.Alerts = append(config.Alerts, &TelegramConfig{
+				Name:     a.Name,
+				BotToken: cfg.BotToken,
+				ChatID:   cfg.ChatID,
+			})
+		default:
+			return nil, fmt.Errorf("unsupported type: %s", a.Type)
+		}
 	}
 
 	return config, nil

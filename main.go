@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	_ "embed"
 	"log"
+	"log/slog"
 	"os"
 
+	"github.com/kamil-koziol/pingo/internal/alerting"
 	"github.com/kamil-koziol/pingo/internal/configuration"
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/monitoring"
@@ -26,6 +28,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to parse config: %v", err)
 	}
+
+	var alerter alerting.Alerter
+
+	alerters := make([]alerting.Alerter, len(config.Alerts))
+	for i, alert := range config.Alerts {
+		alerter, err := alert.Build()
+		if err != nil {
+			log.Fatalf("unable to build alerter: %v", err)
+		}
+		alerters[i] = alerter
+	}
+	alerter = alerting.NewMultiAlerter(alerters...)
+
+	logger := slog.Default()
+	alerter = alerting.NewLoggingAlerter(logger, alerter)
 
 	conn, err := sql.Open("sqlite", "pingo.db")
 	if err != nil {
@@ -52,7 +69,7 @@ func main() {
 			log.Fatalf("unable to upsert service: %v", err)
 		}
 
-		m := monitoring.NewMonitor(service, q)
+		m := monitoring.NewMonitor(service, q, alerter)
 		go m.Run(ctx)
 	}
 

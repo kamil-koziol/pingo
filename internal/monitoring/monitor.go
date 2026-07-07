@@ -5,24 +5,28 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/kamil-koziol/pingo/internal/alerting"
 	"github.com/kamil-koziol/pingo/internal/db"
 )
 
 type Monitor struct {
 	service db.Service
 	q       *db.Queries
+	alerter alerting.Alerter
 }
 
-func NewMonitor(service db.Service, queries *db.Queries) *Monitor {
+func NewMonitor(service db.Service, queries *db.Queries, alerter alerting.Alerter) *Monitor {
 	return &Monitor{
 		service: service,
 		q:       queries,
+		alerter: alerter,
 	}
 }
 
@@ -98,6 +102,13 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		return fmt.Errorf("unable to read the body: %w", err)
 	}
 
+	latestPing, err := m.q.GetLatestServicePing(ctx, m.service.ID)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("unable to get lates ping: %w", err)
+		}
+	}
+
 	if err = m.q.CreatePing(ctx, db.CreatePingParams{
 		ServiceID:          m.service.ID,
 		StatusCode:         int64(resp.StatusCode),
@@ -108,6 +119,26 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		Timestamp:          time.Now(),
 	}); err != nil {
 		return fmt.Errorf("unable to create ping: %w", err)
+	}
+
+	if latestPing.ID != 0 && latestPing.IsUp != isUp {
+		if isUp {
+			m.alerter.Publish(ctx, &alerting.ServiceRecoveredEvent{
+				ServiceId:   m.service.ID,
+				ServiceName: m.service.Name,
+				StatusCode:  int32(resp.StatusCode),
+				LatencyMs:   latency.Milliseconds(),
+			})
+		} else {
+			m.alerter.Publish(ctx, &alerting.ServiceDownEvent{
+				ServiceId:      m.service.ID,
+				ServiceName:    m.service.Name,
+				StatusCode:     int32(resp.StatusCode),
+				ExpectedStatus: int32(m.service.ExpectedStatus),
+				LatencyMs:      latency.Milliseconds(),
+				Error:          string(b),
+			})
+		}
 	}
 
 	return nil
