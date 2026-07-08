@@ -58,7 +58,7 @@ func (h *PingHandler) GetPing(ctx context.Context, r *pb.GetPingRequest) (*pb.Pi
 		return nil, status.Error(codes.Internal, "failed to fetch ping")
 	}
 
-	return mapPingDB(&ping), nil
+	return mapPingDB(ping), nil
 }
 
 func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*pb.ListPingsResponse, error) {
@@ -88,7 +88,7 @@ func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*p
 
 	pbPings := make([]*pb.Ping, len(pings))
 	for i := range len(pings) {
-		pbPings[i] = mapPingDB(&pings[i])
+		pbPings[i] = mapPingDB(pings[i])
 	}
 
 	return &pb.ListPingsResponse{Pings: pbPings}, nil
