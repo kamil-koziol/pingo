@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"flag"
 	"fmt"
 	"log"
 	"log/slog"
@@ -28,9 +29,10 @@ import (
 var ddl string
 
 const DEFAULT_CONFIG_PATH = "config.yml"
+const DEFAULT_DB_PATH = "pingo.db"
 
-func createDB(ctx context.Context) (*sql.DB, error) {
-	conn, err := sql.Open("sqlite", "pingo.db")
+func createDB(ctx context.Context, dbPath string) (*sql.DB, error) {
+	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open db: %w", err)
 	}
@@ -64,9 +66,13 @@ func main() {
 }
 
 func run() error {
+	configPtr := flag.String("config", DEFAULT_CONFIG_PATH, "Path to config file")
+	dbPtr := flag.String("db", DEFAULT_DB_PATH, "Path to db")
+	flag.Parse()
+
 	ctx := context.Background()
 
-	f, err := os.Open(DEFAULT_CONFIG_PATH)
+	f, err := os.Open(*configPtr)
 	if err != nil {
 		return fmt.Errorf("unable to read config: %v", err)
 	}
@@ -93,7 +99,7 @@ func run() error {
 	slog.SetDefault(logger)
 	alerter = alerting.NewLoggingAlerter(logger, alerter)
 
-	conn, err := createDB(ctx)
+	conn, err := createDB(ctx, *dbPtr)
 	if err != nil {
 		log.Fatalf("unable to create db: %v", err)
 	}
