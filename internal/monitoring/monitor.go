@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	randv2 "math/rand/v2"
 	"net/http"
 	"time"
 
@@ -42,6 +43,11 @@ func newCID() string {
 	return hex.EncodeToString(b[:])
 }
 
+func applyJitter(d time.Duration) time.Duration {
+	multiplier := 0.9 + randv2.Float64()*0.2 // 0.9 <= x < 1.1
+	return time.Duration(float64(d) * multiplier)
+}
+
 func (m *Monitor) Run(ctx context.Context) {
 	interval := time.Duration(m.service.IntervalSeconds) * time.Second
 	ticker := time.NewTicker(interval)
@@ -61,6 +67,7 @@ func (m *Monitor) Run(ctx context.Context) {
 			if err := m.Ping(ctx); err != nil {
 				slog.ErrorContext(ctx, "failure during ping", "err", err)
 			}
+			ticker.Reset(applyJitter(interval))
 		}
 	}
 
