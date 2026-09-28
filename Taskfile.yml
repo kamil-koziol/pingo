@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  sqlc:
+    desc: Generate SQL code
+    cmds:
+      - go tool sqlc generate
+
+  buf:
+    desc: Generate protobuf code
+    cmds:
+      - go tool buf generate
+
+  generate:
+    desc: Generate all code
+    deps: [sqlc, buf]
