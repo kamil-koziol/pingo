@@ -72,3 +72,23 @@ alerts:
 
 1. Create a new bot using [BotFather](https://telegram.me/BotFather)
 2. Obtain the chat ID: `https://api.telegram.org/bot<bot_token>/getUpdates`
+
+### API
+
+- **Protocol Buffer Definitions (`.proto`):** Located under [`/proto`](./proto) for gRPC client generation and schema references.
+
+> **Note:** The HTTP JSON gateway proxies requests to the internal gRPC server. Therefore, **HTTP cannot be enabled if gRPC is disabled**.
+
+Example:
+
+```yaml
+api:
+  grpc:
+    enabled: true
+    port: 50051
+
+  http:
+    enabled: true
+    port: 8080
+
+```
