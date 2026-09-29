@@ -92,5 +92,4 @@ func Parse(r io.Reader) (*Config, error) {
 	}
 
 	return config, nil
-
 }

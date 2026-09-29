@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/kamil-koziol/pingo/internal/contextx"
 )
 
 type TelegramAlerter struct {
@@ -61,7 +63,15 @@ func (t *TelegramAlerter) Publish(ctx context.Context, event Event) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		logger := contextx.Logger(ctx)
+
+		err := resp.Body.Close()
+		if err != nil {
+			logger.ErrorContext(ctx, "blose body", "%w", err)
+		}
+	}()
 
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("telegram error: %s", resp.Status)

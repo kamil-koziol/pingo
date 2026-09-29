@@ -62,7 +62,6 @@ func (h *PingHandler) GetPing(ctx context.Context, r *pb.GetPingRequest) (*pb.Pi
 }
 
 func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*pb.ListPingsResponse, error) {
-
 	var params db.ListPingsParams
 	if r.IsUp != nil {
 		params.IsUp = r.IsUp

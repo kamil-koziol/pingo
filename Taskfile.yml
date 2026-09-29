@@ -16,3 +16,41 @@ tasks:
   generate:
     desc: Generate all code
     deps: [sqlc, buf]
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go tool gofumpt -w .
+
+  "fmt:check":
+    desc: Check Go formatting
+    cmds:
+      - test -z "$(go tool gofumpt -l .)"
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  staticcheck:
+    desc: Run staticcheck
+    cmds:
+      - go tool staticcheck ./...
+
+  errcheck:
+    desc: Check for unchecked errors
+    cmds:
+      - go tool errcheck -ignoregenerated ./...
+
+  ineffassign:
+    desc: Check for ineffectual assignments
+    cmds:
+      - go tool ineffassign ./...
+
+  lint:
+    desc: Run all linters
+    deps: [vet, staticcheck, errcheck, ineffassign]
+
+  check:
+    desc: Check formatting and run all linters
+    deps: ["fmt:check", lint]

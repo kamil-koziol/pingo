@@ -16,6 +16,7 @@ import (
 	pb "github.com/kamil-koziol/pingo/gen/go/pingo/v1"
 	"github.com/kamil-koziol/pingo/internal/alerting"
 	"github.com/kamil-koziol/pingo/internal/configuration"
+	"github.com/kamil-koziol/pingo/internal/contextx"
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/handler"
 	"github.com/kamil-koziol/pingo/internal/middleware"
@@ -28,8 +29,10 @@ import (
 //go:embed schema.sql
 var ddl string
 
-const DEFAULT_CONFIG_PATH = "config.yml"
-const DEFAULT_DB_PATH = "pingo.db"
+const (
+	DEFAULT_CONFIG_PATH = "config.yml"
+	DEFAULT_DB_PATH     = "pingo.db"
+)
 
 func createDB(ctx context.Context, dbPath string) (*sql.DB, error) {
 	conn, err := sql.Open("sqlite", dbPath)
@@ -114,13 +117,13 @@ func run() error {
 			IntervalSeconds: int64(check.Interval.Seconds()),
 			ExpectedStatus:  int64(check.ExpectedStatus),
 		})
-
 		if err != nil {
 			log.Fatalf("unable to upsert service: %v", err)
 		}
 
 		m := monitoring.NewMonitor(service, q, alerter)
-		go m.Run(ctx)
+		monitorCtx := contextx.WithLogger(ctx, logger)
+		go m.Run(monitorCtx)
 	}
 
 	grpcAddr := ":50051"

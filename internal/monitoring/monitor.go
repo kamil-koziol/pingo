@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/kamil-koziol/pingo/internal/alerting"
+	"github.com/kamil-koziol/pingo/internal/contextx"
 	"github.com/kamil-koziol/pingo/internal/db"
 )
 
@@ -70,7 +71,6 @@ func (m *Monitor) Run(ctx context.Context) {
 			ticker.Reset(applyJitter(interval))
 		}
 	}
-
 }
 
 func (m *Monitor) Call(ctx context.Context) (*http.Response, error) {
@@ -83,22 +83,23 @@ func (m *Monitor) Call(ctx context.Context) (*http.Response, error) {
 
 func (m *Monitor) Ping(ctx context.Context) error {
 	cid := newCID()
-	log := slog.Default()
-	log = log.With("cid", cid)
 
-	log.InfoContext(ctx, "checking", "url", m.service.Url, "service", m.service.Name)
+	logger := contextx.Logger(ctx)
+	logger = logger.With("cid", cid)
+
+	logger.InfoContext(ctx, "checking", "url", m.service.Url, "service", m.service.Name)
 
 	start := time.Now()
 	resp, err := m.Call(ctx)
 	if err != nil {
-		log.ErrorContext(ctx, "there was an error during request", "err", err)
+		logger.ErrorContext(ctx, "there was an error during request", "err", err)
 		return fmt.Errorf("unable to call: %w", err)
 	}
 
 	latency := time.Since(start)
 	isUp := int64(resp.StatusCode) == m.service.ExpectedStatus
 
-	log.InfoContext(ctx, "got a response",
+	logger.InfoContext(ctx, "got a response",
 		"code", resp.StatusCode,
 		"is_up", isUp,
 		"latency", latency,
@@ -131,22 +132,28 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	}
 
 	if latestPing != nil && latestPing.IsUp != isUp {
+		var event alerting.Event
+
 		if isUp {
-			m.alerter.Publish(ctx, &alerting.ServiceRecoveredEvent{
+			event = &alerting.ServiceRecoveredEvent{
 				ServiceId:   m.service.ID,
 				ServiceName: m.service.Name,
 				StatusCode:  int32(resp.StatusCode),
 				LatencyMs:   latency.Milliseconds(),
-			})
+			}
 		} else {
-			m.alerter.Publish(ctx, &alerting.ServiceDownEvent{
+			event = &alerting.ServiceDownEvent{
 				ServiceId:      m.service.ID,
 				ServiceName:    m.service.Name,
 				StatusCode:     int32(resp.StatusCode),
 				ExpectedStatus: int32(m.service.ExpectedStatus),
 				LatencyMs:      latency.Milliseconds(),
 				Error:          string(b),
-			})
+			}
+		}
+
+		if err := m.alerter.Publish(ctx, event); err != nil {
+			logger.ErrorContext(ctx, "publishing events failed", "err", err)
 		}
 	}
 
