@@ -3,19 +3,49 @@
 version: "3"
 
 tasks:
-  sqlc:
+  "sqlc:generate":
     desc: Generate SQL code
     cmds:
       - go tool sqlc generate
 
-  buf:
+  "sqlc:check":
+    desc: Check sqlc generated queries
+    cmds:
+      - go tool sqlc diff
+
+  "buf:generate":
     desc: Generate protobuf code
     cmds:
       - go tool buf generate
 
+  "buf:check:generate":
+    desc: Check generated protobuf code is up to date
+    cmds:
+      - go tool buf generate
+      - git diff --exit-code -- '*.pb.go'
+
+  "buf:lint":
+    desc: Lint proto
+    cmds:
+      - go tool buf lint
+
+  "buf:fmt":
+    desc: Format protobuf files
+    cmds:
+      - go tool buf format -w
+
+  "buf:check:fmt":
+    desc: Check protobuf formatting
+    cmds:
+      - go tool buf format --diff --exit-code
+
+  "buf:check":
+    desc: Lint, format, and check generated protobuf code
+    deps: ["buf:lint", "buf:check:fmt", "buf:check:generate"]
+
   generate:
     desc: Generate all code
-    deps: [sqlc, buf]
+    deps: ["sqlc:generate", "buf:generate"]
 
   fmt:
     desc: Format Go code
@@ -53,4 +83,4 @@ tasks:
 
   check:
     desc: Check formatting and run all linters
-    deps: ["fmt:check", lint]
+    deps: ["fmt:check", "sqlc:check", "buf:check", lint]
