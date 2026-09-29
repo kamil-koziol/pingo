@@ -15,7 +15,7 @@ Mount your configuration file into the container and run the image:
 ```sh
 docker run --rm \
   -v "$(pwd)/config.yml:/config.yml:ro" \
-  pingo:latest
+  ghcr.io/kamil-koziol/pingo:latest
 ```
 
 
