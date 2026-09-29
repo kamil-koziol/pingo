@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -11,6 +12,9 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	pb "github.com/kamil-koziol/pingo/gen/go/pingo/v1"
@@ -126,49 +130,84 @@ func run() error {
 		go m.Run(monitorCtx)
 	}
 
-	grpcAddr := ":50051"
-	httpAddr := ":8081"
+	grpcAddr := fmt.Sprintf(":%d", config.API.GRPC.Port)
+	httpAddr := fmt.Sprintf(":%d", config.API.HTTP.Port)
+
+	var grpcServer *grpc.Server
+	var httpServer *http.Server
 
 	// ---- gRPC server ----
-	lis, err := net.Listen("tcp", grpcAddr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	serviceHandler := handler.NewServiceHandler(conn, q)
-	pingHandler := handler.NewPingHandler(conn, q)
-
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(middleware.LoggingInterceptor(logger)),
-	)
-	pb.RegisterServiceServiceServer(grpcServer, serviceHandler)
-	pb.RegisterPingServiceServer(grpcServer, pingHandler)
-
-	go func() {
-		logger.Info("gRPC listening on", "addr", grpcAddr)
-		if err := grpcServer.Serve(lis); err != nil {
-			logger.Error("error occured", "err", err)
+	if config.API.GRPC.Enabled {
+		lis, err := net.Listen("tcp", grpcAddr)
+		if err != nil {
+			return fmt.Errorf("failed to listen on gRPC port %s: %w", grpcAddr, err)
 		}
-	}()
+
+		serviceHandler := handler.NewServiceHandler(conn, q)
+		pingHandler := handler.NewPingHandler(conn, q)
+
+		grpcServer = grpc.NewServer(
+			grpc.UnaryInterceptor(middleware.LoggingInterceptor(logger)),
+		)
+		pb.RegisterServiceServiceServer(grpcServer, serviceHandler)
+		pb.RegisterPingServiceServer(grpcServer, pingHandler)
+
+		go func() {
+			logger.Info("gRPC listening on", "addr", grpcAddr)
+			if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+				logger.Error("gRPC server error", "err", err)
+			}
+		}()
+	}
 
 	// ---- HTTP JSON Gateway ----
-	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	grpcHP := "localhost" + grpcAddr
+	if config.API.HTTP.Enabled {
+		mux := runtime.NewServeMux()
+		opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+		grpcHP := "localhost" + grpcAddr
 
-	if err := pb.RegisterServiceServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
-		return err
+		if err := pb.RegisterServiceServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
+			return fmt.Errorf("failed to register service handler: %w", err)
+		}
+
+		if err := pb.RegisterPingServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
+			return fmt.Errorf("failed to register ping handler: %w", err)
+		}
+
+		httpServer = &http.Server{
+			Addr:    httpAddr,
+			Handler: mux,
+		}
+
+		go func() {
+			logger.Info("HTTP JSON listening on", "addr", httpAddr)
+			if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				logger.Error("HTTP gateway server error", "err", err)
+			}
+		}()
 	}
 
-	if err := pb.RegisterPingServiceHandlerFromEndpoint(ctx, mux, grpcHP, opts); err != nil {
-		return err
+	// Block until shutdown received
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("Shutting down servers...")
+
+	// Graceful shutdown
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if httpServer != nil {
+		if err := httpServer.Shutdown(shutdownCtx); err != nil {
+			logger.Error("HTTP gateway shutdown error", "err", err)
+		}
 	}
 
-	logger.Info("HTTP JSON listening on", "addr", httpAddr)
-	err = http.ListenAndServe(httpAddr, mux)
-	if err != nil {
-		return fmt.Errorf("an error occured: %w", err)
+	if grpcServer != nil {
+		grpcServer.GracefulStop()
 	}
 
+	logger.Info("Server stopped cleanly")
 	return nil
 }

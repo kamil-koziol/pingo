@@ -22,6 +22,7 @@ type AlerterConfig interface {
 }
 
 type Config struct {
+	API    *rawAPI
 	Checks []Check
 	Alerts []AlerterConfig
 }
@@ -45,9 +46,16 @@ func Parse(r io.Reader) (*Config, error) {
 		return nil, fmt.Errorf("decode yaml: %w", err)
 	}
 
+	raw.Default()
+
+	if err := raw.Validate(); err != nil {
+		return nil, fmt.Errorf("validate: %w", err)
+	}
+
 	config := &Config{
 		Checks: make([]Check, 0, len(raw.Checks)),
 		Alerts: make([]AlerterConfig, 0, len(raw.Alerts)),
+		API:    raw.API,
 	}
 
 	for _, c := range raw.Checks {
@@ -56,15 +64,10 @@ func Parse(r io.Reader) (*Config, error) {
 			return nil, fmt.Errorf("invalid url %q: %w", c.URL, err)
 		}
 
-		d, err := time.ParseDuration(c.Interval)
-		if err != nil {
-			return nil, fmt.Errorf("invalid interval %q: %w", c.Interval, err)
-		}
-
 		config.Checks = append(config.Checks, Check{
 			Name:           c.Name,
 			URL:            u,
-			Interval:       d,
+			Interval:       c.Interval,
 			ExpectedStatus: c.ExpectedStatus,
 		})
 	}

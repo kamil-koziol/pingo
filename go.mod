@@ -3,6 +3,7 @@ module github.com/kamil-koziol/pingo
 go 1.27.1
 
 require (
+	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.31.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260921155816-b14227669459
 	google.golang.org/grpc v1.84.0
@@ -50,6 +51,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.43.4 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.16 // indirect
