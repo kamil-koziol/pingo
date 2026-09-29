@@ -86,6 +86,7 @@ api:
   grpc:
     enabled: true
     port: 50051
+    reflection: false # see https://grpc.io/docs/guides/reflection/
 
   http:
     enabled: true
