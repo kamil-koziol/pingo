@@ -29,8 +29,9 @@ func (h *rawHTTP) Validate() error {
 }
 
 type rawGRPC struct {
-	Enabled bool `yaml:"enabled"`
-	Port    int  `yaml:"port"`
+	Enabled    bool `yaml:"enabled"`
+	Port       int  `yaml:"port"`
+	Reflection bool `yaml:"reflection"`
 }
 
 func (g *rawGRPC) Default() {

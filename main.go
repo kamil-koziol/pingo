@@ -27,6 +27,7 @@ import (
 	"github.com/kamil-koziol/pingo/internal/monitoring"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 	_ "modernc.org/sqlite"
 )
 
@@ -151,6 +152,10 @@ func run() error {
 		)
 		pb.RegisterServiceServiceServer(grpcServer, serviceHandler)
 		pb.RegisterPingServiceServer(grpcServer, pingHandler)
+
+		if config.API.GRPC.Reflection {
+			reflection.Register(grpcServer)
+		}
 
 		go func() {
 			logger.Info("gRPC listening on", "addr", grpcAddr)
