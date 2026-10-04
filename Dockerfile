@@ -1,6 +1,6 @@
 # golang:1.27.1-trixie
 # https://hub.docker.com/layers/library/golang/1.27.1-trixie/images/sha256-fbcb99f2c5f6572a8738b97b614b12f7dfeda28a64195ee65bec0f8fd224b574
-FROM golang@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5 as build
+FROM golang@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5 AS build
 
 WORKDIR /app
 
