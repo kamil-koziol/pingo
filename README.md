@@ -84,12 +84,12 @@ Example:
 ```yaml
 api:
   grpc:
-    enabled: true
+    enabled: false
     port: 50051
     reflection: false # see https://grpc.io/docs/guides/reflection/
 
   http:
-    enabled: true
+    enabled: false
     port: 8080
 
 ```
