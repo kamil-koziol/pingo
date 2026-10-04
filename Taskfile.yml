@@ -2,6 +2,14 @@
 
 version: "3"
 
+vars:
+  # web
+  WEB_DIR: ./internal/web
+  WEB_PORT: "3000"
+  CSS_DIR: "{{.WEB_DIR}}/static/css"
+  CSS_IN: "{{.CSS_DIR}}/input.css"
+  CSS_OUT: "{{.CSS_DIR}}/output.css"
+
 tasks:
   "sqlc:generate":
     desc: Generate SQL code
@@ -21,7 +29,7 @@ tasks:
   "buf:check:generate":
     desc: Check generated protobuf code is up to date
     cmds:
-      - go tool buf generate
+      - task: buf:generate
       - git diff --exit-code -- '*.pb.go'
 
   "buf:lint":
@@ -43,44 +51,140 @@ tasks:
     desc: Lint, format, and check generated protobuf code
     deps: ["buf:lint", "buf:check:fmt", "buf:check:generate"]
 
-  generate:
-    desc: Generate all code
-    deps: ["sqlc:generate", "buf:generate"]
-
-  fmt:
+  "code:fmt":
     desc: Format Go code
     cmds:
       - go tool gofumpt -w .
 
-  "fmt:check":
+  "code:check:fmt":
     desc: Check Go formatting
     cmds:
       - test -z "$(go tool gofumpt -l .)"
 
-  vet:
+  "code:lint:vet":
     desc: Run go vet
     cmds:
       - go vet ./...
 
-  staticcheck:
+  "code:lint:staticcheck":
     desc: Run staticcheck
     cmds:
       - go tool staticcheck ./...
 
-  errcheck:
+  "code:lint:errcheck":
     desc: Check for unchecked errors
     cmds:
       - go tool errcheck -ignoregenerated ./...
 
-  ineffassign:
+  "code:lint:ineffassign":
     desc: Check for ineffectual assignments
     cmds:
       - go tool ineffassign ./...
 
-  lint:
-    desc: Run all linters
-    deps: [vet, staticcheck, errcheck, ineffassign]
+  "code:lint":
+    desc: Run all code linters
+    deps:
+      [
+        "code:lint:vet",
+        "code:lint:staticcheck",
+        "code:lint:errcheck",
+        "code:lint:ineffassign",
+      ]
+
+  "templ:fmt":
+    desc: Format templ files
+    cmds:
+      - "go tool templ fmt {{.WEB_DIR}}"
+
+  "templ:generate":
+    desc: Generate Go code from templ files
+    cmds:
+      - go tool templ generate
+
+  "templ:check:generate":
+    desc: Fail if generated *_templ.go files are out of date
+    cmds:
+      - task: templ:generate
+      - git diff --exit-code -- '*_templ.go'
+      - test -z "$(git ls-files --others --exclude-standard -- '*_templ.go')"
+
+  "templ:watch":
+    desc: Run templ with integrated server and hot reload
+    cmds:
+      - go tool templ generate --watch --proxy="http://localhost:{{.WEB_PORT}}" --cmd="go run main.go" --open-browser=true
+
+  "templ:check:fmt":
+    desc: Fail if templ files are not formatted
+    cmds:
+      - "go tool templ fmt -fail {{.WEB_DIR}}"
+
+  "templ:check":
+    desc: Fail if templ files are not formatted or generated code is stale
+    cmds:
+      - task: templ:check:fmt
+      - task: templ:check:generate
+
+  "tailwind:install":
+    desc: Install Tailwind CSS
+    vars:
+      VERSION: v4.3.3
+      SHA256: dc61b3ac6b8c9ca874c0cc4c57b2409791a64c5540404ca5f5367360babc313a
+    status:
+      - test -f ./tailwindcss
+      - test "$(sha256sum ./tailwindcss | cut -d ' ' -f1)" = "{{.SHA256}}"
+    cmds:
+      - curl -fsSL -o ./tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/download/{{.VERSION}}/tailwindcss-linux-x64
+      - chmod +x ./tailwindcss
+
+  "tailwind:build":
+    desc: Build minified Tailwind CSS
+    deps:
+      - tailwind:install
+    cmds:
+      - "./tailwindcss -i {{.CSS_IN}} -o {{.CSS_OUT}} --minify"
+
+  "tailwind:watch":
+    desc: Watch Tailwind CSS changes
+    deps:
+      - tailwind:install
+    cmds:
+      - "./tailwindcss -i {{.CSS_IN}} -o {{.CSS_OUT}} --watch"
+
+  "tailwind:check":
+    desc: Fail if the compiled output.css is out of date
+    cmds:
+      - task: tailwind:build
+      - git diff --exit-code -- {{.CSS_OUT}}
+      - test -z "$(git ls-files --others --exclude-standard -- {{.CSS_OUT}})"
+
+  watch:
+    desc: Start development server with hot reload
+    cmds:
+      - go tool task --parallel tailwind:watch templ:watch
+
+  fmt:
+    desc: Format all project files
+    deps: ["code:fmt", "buf:fmt", "templ:fmt"]
 
   check:
     desc: Check formatting and run all linters
-    deps: ["fmt:check", "sqlc:check", "buf:check", lint]
+    deps: ["code:check:fmt", "sqlc:check", "buf:check", "code:lint"]
+    cmds:
+      - task: templ:check
+      - task: tailwind:check
+
+  generate:
+    desc: Generate all code
+    deps: ["sqlc:generate", "buf:generate", "templ:generate"]
+
+  build:
+    desc: Build the single binary with embedded assets
+    vars:
+      VERSION:
+        sh: git describe --tags --always 2>/dev/null || echo dev
+    env:
+      CGO_ENABLED: "0"
+    cmds:
+      - task: generate
+      - task: tailwind:build
+      - go build -trimpath -ldflags="-s -w -X main.version={{.VERSION}}" -o pingo .

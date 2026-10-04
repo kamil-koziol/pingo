@@ -1,0 +1,208 @@
+package views
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/kamil-koziol/pingo/internal/db"
+	"github.com/kamil-koziol/pingo/internal/web/components/ui/badge"
+	"github.com/kamil-koziol/pingo/internal/web/components/ui/card"
+)
+
+type ServiceStatus struct {
+	Service *db.Service
+	Ping    *db.Ping
+}
+
+type Stats struct {
+	Total, Up, Down, Paused int
+}
+
+type state int
+
+const (
+	statePending state = iota
+	stateUp
+	stateDown
+	statePaused
+)
+
+func (s ServiceStatus) state() state {
+	switch {
+	case !s.Service.IsActive:
+		return statePaused
+	case s.Ping == nil:
+		return statePending
+	case s.Ping.IsUp:
+		return stateUp
+	default:
+		return stateDown
+	}
+}
+
+func stateLabel(s state) string {
+	return [...]string{"Pending", "Up", "Down", "Paused"}[s]
+}
+
+func stateBadge(s state) badge.Props {
+	switch s {
+	case stateUp:
+		return badge.Props{
+			Variant: badge.VariantOutline,
+			Class:   "border-emerald-500/40 text-emerald-600 dark:text-emerald-400",
+		}
+	case stateDown:
+		return badge.Props{Variant: badge.VariantDestructive}
+	case statePaused:
+		return badge.Props{Variant: badge.VariantOutline, Class: "text-muted-foreground"}
+	default:
+		return badge.Props{Variant: badge.VariantSecondary}
+	}
+}
+
+func cardClass(s state) string {
+	if s == stateDown {
+		return "border-destructive/50"
+	}
+	return ""
+}
+
+func timeAgo(t time.Time) string {
+	d := time.Since(t)
+	switch {
+	case d < 5*time.Second:
+		return "just now"
+	case d < time.Minute:
+		return fmt.Sprintf("%ds ago", int(d.Seconds()))
+	case d < time.Hour:
+		return fmt.Sprintf("%dm ago", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh ago", int(d.Hours()))
+	default:
+		return fmt.Sprintf("%dd ago", int(d.Hours()/24))
+	}
+}
+
+templ Dashboard(stats Stats, items []ServiceStatus) {
+	@Layout("Dashboard") {
+		<div class="mb-6">
+			<h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+			<p class="text-sm text-muted-foreground">Live status of your monitored services. Refreshes every 5s.</p>
+		</div>
+		@ContentWrapper(stats, items)
+	}
+}
+
+templ ContentWrapper(stats Stats, items []ServiceStatus) {
+	<div
+		id="dashboard-content"
+		hx-get="/dashboard/content"
+		hx-trigger="every 5s"
+		hx-swap="outerHTML"
+		class="space-y-6"
+	>
+		@StatCards(stats)
+		@ServiceGrid(items)
+	</div>
+}
+
+templ StatCards(s Stats) {
+	<section class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+		@statCard("Services", fmt.Sprint(s.Total), "")
+		@statCard("Up", fmt.Sprint(s.Up), "text-emerald-600 dark:text-emerald-400")
+		@statCard("Down", fmt.Sprint(s.Down), "text-destructive")
+	</section>
+}
+
+templ statCard(label, value, valueClass string) {
+	@card.Card() {
+		@card.Header(card.HeaderProps{Class: "pb-2"}) {
+			@card.Description() {
+				{ label }
+			}
+		}
+		@card.Content() {
+			<p class={ "text-2xl font-semibold", valueClass }>{ value }</p>
+		}
+	}
+}
+
+templ ServiceGrid(items []ServiceStatus) {
+	if len(items) == 0 {
+		@card.Card() {
+			@card.Content(card.ContentProps{Class: "py-10 text-center text-sm text-muted-foreground"}) {
+				No services yet.
+			}
+		}
+	} else {
+		<section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			for _, it := range items {
+				@ServiceCard(it)
+			}
+		</section>
+	}
+}
+
+const NoValue = "-"
+
+templ ServiceCard(it ServiceStatus) {
+	{{ st := it.state() }}
+	@card.Card(card.Props{Class: cardClass(st)}) {
+		@card.Header() {
+			<div class="flex items-start justify-between gap-3">
+				<div class="min-w-0">
+					@card.Title(card.TitleProps{Class: "truncate text-base"}) {
+						{ it.Service.Name }
+					}
+					@card.Description(card.DescriptionProps{Class: "truncate"}) {
+						{ it.Service.Url }
+					}
+				</div>
+				@badge.Badge(stateBadge(st)) {
+					{ stateLabel(st) }
+				}
+			</div>
+		}
+		@card.Content() {
+			<dl class="grid grid-cols-3 gap-2 text-sm">
+				<div>
+					<dt class="text-xs text-muted-foreground">Latency</dt>
+					<dd class="font-medium">
+						if it.Ping != nil {
+							{ fmt.Sprintf("%d ms", it.Ping.LatencyMs) }
+						} else {
+							NoValue
+						}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-xs text-muted-foreground">Status</dt>
+					<dd class="font-medium">
+						if it.Ping != nil {
+							{ fmt.Sprint(it.Ping.StatusCode) }
+							<span class="text-xs font-normal text-muted-foreground">/ { fmt.Sprint(it.Service.ExpectedStatus) }</span>
+						} else {
+							NoValue
+						}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-xs text-muted-foreground">Checked</dt>
+					<dd class="font-medium">
+						if it.Ping != nil {
+							{ timeAgo(it.Ping.Timestamp) }
+						} else {
+							NoValue
+						}
+					</dd>
+				</div>
+			</dl>
+			if it.Ping != nil && it.Ping.ErrorMessage.Valid && !it.Ping.IsUp {
+				<p class="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{ it.Ping.ErrorMessage.String }</p>
+			}
+		}
+		@card.Footer() {
+			<p class="text-xs text-muted-foreground">Every { fmt.Sprint(it.Service.IntervalSeconds) }s</p>
+		}
+	}
+}

@@ -1,0 +1,25 @@
+package components
+
+import (
+	"fmt"
+	"time"
+)
+
+templ Footer() {
+	<footer class="border-t">
+		<div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:px-6 mt-auto">
+			<p>© { fmt.Sprint(time.Now().Year()) } Pingo</p>
+			<p>
+				Open source on
+				<a
+					href="https://github.com/kamil-koziol/pingo"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium text-foreground underline-offset-4 hover:underline"
+				>
+					github.com/kamil-koziol/pingo
+				</a>
+			</p>
+		</div>
+	</footer>
+}

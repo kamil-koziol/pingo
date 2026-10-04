@@ -1,0 +1,24 @@
+package views
+
+import "github.com/kamil-koziol/pingo/internal/web/components"
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title } | Pingo</title>
+			<link rel="stylesheet" href="/static/css/output.css"/>
+			<script src="/static/js/htmx-4.0.0.min.js"></script>
+			<link rel="preload" href="/static/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin/>
+		</head>
+		<body class="flex min-h-dvh flex-col">
+			@components.Navbar()
+			<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
+				{ children... }
+			</main>
+			@components.Footer()
+		</body>
+	</html>
+}

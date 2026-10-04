@@ -91,5 +91,16 @@ api:
   http:
     enabled: false
     port: 8080
+```
 
+### Web UI Dashboard
+
+Set `web.enabled` to `true` to serve the built-in web dashboard, which shows the live status of your services, on the port given by `web.port` (default `3000`).
+
+Example:
+
+```yaml
+web:
+    enabled: false
+    port: 3000
 ```

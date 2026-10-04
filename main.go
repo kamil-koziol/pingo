@@ -25,6 +25,7 @@ import (
 	"github.com/kamil-koziol/pingo/internal/handler"
 	"github.com/kamil-koziol/pingo/internal/middleware"
 	"github.com/kamil-koziol/pingo/internal/monitoring"
+	"github.com/kamil-koziol/pingo/internal/web/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -188,6 +189,18 @@ func run() error {
 			logger.Info("HTTP JSON listening on", "addr", httpAddr)
 			if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				logger.Error("HTTP gateway server error", "err", err)
+			}
+		}()
+	}
+
+	if config.Web.Enabled {
+		webAddr := fmt.Sprintf(":%d", config.Web.Port)
+		webServer := server.New(webAddr, q, conn)
+
+		go func() {
+			logger.Info("web dashboard listening on", "addr", webAddr)
+			if err := webServer.Start(); err != nil {
+				logger.Error("web server error", "err", err)
 			}
 		}()
 	}

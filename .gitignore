@@ -1,2 +1,6 @@
 config.yml
 pingo.db*
+/main
+/tailwindcss
+/internal/web/static/css/output.css
+/pingo

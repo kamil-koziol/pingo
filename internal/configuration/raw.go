@@ -9,6 +9,25 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type rawWeb struct {
+	Enabled bool `yaml:"enabled"`
+	Port    int  `yaml:"port"`
+}
+
+func (h *rawWeb) Default() {
+	if h.Enabled && h.Port == 0 {
+		h.Port = 3000
+	}
+}
+
+func (h *rawWeb) Validate() error {
+	return validation.ValidateStruct(h,
+		validation.Field(&h.Port,
+			validation.When(h.Enabled, validation.Min(1), validation.Max(65535)),
+		),
+	)
+}
+
 type rawHTTP struct {
 	Enabled bool `yaml:"enabled"`
 	Port    int  `yaml:"port"`
@@ -130,6 +149,7 @@ func (a *rawAlert) Validate() error {
 
 type rawConfig struct {
 	API    *rawAPI     `yaml:"api"`
+	Web    *rawWeb     `yaml:"web"`
 	Checks []*rawCheck `yaml:"checks"`
 	Alerts []*rawAlert `yaml:"alerts"`
 }
@@ -139,6 +159,11 @@ func (c *rawConfig) Default() {
 		c.API = &rawAPI{}
 	}
 	c.API.Default()
+
+	if c.Web == nil {
+		c.Web = &rawWeb{}
+	}
+	c.Web.Default()
 
 	for _, check := range c.Checks {
 		if check != nil {
@@ -155,6 +180,7 @@ func (c *rawConfig) Default() {
 func (c *rawConfig) Validate() error {
 	return validation.ValidateStruct(c,
 		validation.Field(&c.API),
+		validation.Field(&c.Web),
 		validation.Field(&c.Checks, validation.Each()),
 		validation.Field(&c.Alerts, validation.Each()),
 	)

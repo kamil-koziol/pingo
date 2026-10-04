@@ -3,8 +3,11 @@ module github.com/kamil-koziol/pingo
 go 1.27.1
 
 require (
+	github.com/Oudwins/tailwind-merge-go v0.2.0
+	github.com/a-h/templ v0.3.1020
 	github.com/go-ozzo/ozzo-validation/v4 v4.4.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.31.0
+	github.com/templui/templui v1.13.2
 	google.golang.org/genproto/googleapis/api v0.0.0-20260921155816-b14227669459
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
@@ -49,7 +52,9 @@ require (
 	github.com/Ladicle/tabwriter v1.0.0 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
+	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
@@ -75,6 +80,7 @@ require (
 	github.com/bufbuild/buf v1.73.0 // indirect
 	github.com/bufbuild/protocompile v0.14.2-0.20260910151042-7436f7c76201 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20260414125817-25d1d281b46b // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chainguard-dev/git-urls v1.0.2 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
@@ -149,6 +155,7 @@ require (
 	github.com/moby/moby/api v1.56.0 // indirect
 	github.com/moby/moby/client v0.6.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
+	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/ncruces/go-sqlite3 v0.32.0 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
@@ -235,11 +242,13 @@ require (
 )
 
 tool (
+	github.com/a-h/templ/cmd/templ
 	github.com/bufbuild/buf/cmd/buf
 	github.com/go-task/task/v3/cmd/task
 	github.com/gordonklaus/ineffassign
 	github.com/kisielk/errcheck
 	github.com/sqlc-dev/sqlc/cmd/sqlc
+	github.com/templui/templui/cmd/templui
 	honnef.co/go/tools/cmd/staticcheck
 	mvdan.cc/gofumpt
 )
