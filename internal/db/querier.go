@@ -17,6 +17,7 @@ type Querier interface {
 	ListLatestPings(ctx context.Context, db DBTX, serviceIds []int64) ([]*ListLatestPingsRow, error)
 	ListPings(ctx context.Context, db DBTX, arg ListPingsParams) ([]*Ping, error)
 	ListServices(ctx context.Context, db DBTX) ([]*Service, error)
+	SetServiceActivity(ctx context.Context, db DBTX, arg SetServiceActivityParams) error
 	UpsertService(ctx context.Context, db DBTX, arg UpsertServiceParams) (*Service, error)
 }
 

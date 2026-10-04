@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 
@@ -116,6 +117,7 @@ func run() error {
 	q := db.New()
 
 	// Ensure services
+	markedAsActive := []int64{}
 	for _, check := range config.Checks {
 		service, err := q.UpsertService(ctx, conn, db.UpsertServiceParams{
 			Name:            check.Name,
@@ -124,12 +126,39 @@ func run() error {
 			ExpectedStatus:  int64(check.ExpectedStatus),
 		})
 		if err != nil {
-			log.Fatalf("unable to upsert service: %v", err)
+			logger.ErrorContext(ctx, "upsert service", "err", err)
+			return err
 		}
+
+		if err := q.SetServiceActivity(ctx, conn, db.SetServiceActivityParams{IsActive: true, ID: service.ID}); err != nil {
+			logger.ErrorContext(ctx, "set service as active", "service_id", service.ID, "service_name", service.Name, "err", err)
+			return err
+		}
+
+		markedAsActive = append(markedAsActive, service.ID)
 
 		m := monitoring.NewMonitor(service, q, conn, alerter)
 		monitorCtx := contextx.WithLogger(ctx, logger)
 		go m.Run(monitorCtx)
+	}
+
+	// Make services as inactive
+	allServices, err := q.ListServices(ctx, conn)
+	if err != nil {
+		logger.ErrorContext(ctx, "list services", "err", err)
+		return err
+	}
+
+	for _, service := range allServices {
+		if slices.Contains(markedAsActive, service.ID) {
+			continue
+		}
+
+		logger.InfoContext(ctx, "setting service as inactive", "service_id", service.ID, "service_name", service.Name)
+		if err := q.SetServiceActivity(ctx, conn, db.SetServiceActivityParams{IsActive: false, ID: service.ID}); err != nil {
+			logger.ErrorContext(ctx, "set service as inactive", "service_id", service.ID, "err", err)
+			return err
+		}
 	}
 
 	grpcAddr := fmt.Sprintf(":%d", config.API.GRPC.Port)

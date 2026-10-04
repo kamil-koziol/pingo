@@ -261,6 +261,22 @@ func (q *Queries) ListServices(ctx context.Context, db DBTX) ([]*Service, error)
 	return items, nil
 }
 
+const setServiceActivity = `-- name: SetServiceActivity :exec
+UPDATE services
+SET is_active = ?
+WHERE id = ?
+`
+
+type SetServiceActivityParams struct {
+	IsActive bool
+	ID       int64
+}
+
+func (q *Queries) SetServiceActivity(ctx context.Context, db DBTX, arg SetServiceActivityParams) error {
+	_, err := db.ExecContext(ctx, setServiceActivity, arg.IsActive, arg.ID)
+	return err
+}
+
 const upsertService = `-- name: UpsertService :one
 INSERT INTO services (name, url, interval_seconds, expected_status)
 VALUES (?, ?, ?, ?)

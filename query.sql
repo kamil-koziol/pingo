@@ -10,6 +10,11 @@ RETURNING *;
 -- name: ListServices :many
 SELECT * FROM services;
 
+-- name: SetServiceActivity :exec
+UPDATE services
+SET is_active = ?
+WHERE id = ?;
+
 -- name: GetServiceByID :one
 SELECT * FROM services WHERE id=? LIMIT 1;
 

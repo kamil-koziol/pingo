@@ -111,6 +111,7 @@ templ StatCards(s Stats) {
 		@statCard("Services", fmt.Sprint(s.Total), "")
 		@statCard("Up", fmt.Sprint(s.Up), "text-emerald-600 dark:text-emerald-400")
 		@statCard("Down", fmt.Sprint(s.Down), "text-destructive")
+		@statCard("Paused", fmt.Sprint(s.Paused), "text-gray")
 	</section>
 }
 
