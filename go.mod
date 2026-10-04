@@ -229,6 +229,7 @@ require (
 	google.golang.org/api v0.293.0 // indirect
 	google.golang.org/genproto v0.0.0-20260724162435-b2f20204f0df // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	honnef.co/go/tools v0.8.1 // indirect
 	modernc.org/libc v1.77.1 // indirect
@@ -246,9 +247,12 @@ tool (
 	github.com/bufbuild/buf/cmd/buf
 	github.com/go-task/task/v3/cmd/task
 	github.com/gordonklaus/ineffassign
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
 	github.com/kisielk/errcheck
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 	github.com/templui/templui/cmd/templui
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	google.golang.org/protobuf/cmd/protoc-gen-go
 	honnef.co/go/tools/cmd/staticcheck
 	mvdan.cc/gofumpt
 )
