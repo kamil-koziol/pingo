@@ -9,6 +9,16 @@ templ Layout(title string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title } | Pingo</title>
+			<script>
+                const darkMode = window.matchMedia("(prefers-color-scheme: dark)");
+
+                function updateTheme() {
+                    document.documentElement.classList.toggle("dark", darkMode.matches);
+                }
+
+                updateTheme();
+                darkMode.addEventListener("change", updateTheme);
+            </script>
 			<link rel="stylesheet" href="/static/css/output.css"/>
 			<script src="/static/js/htmx-4.0.0.min.js"></script>
 			<link rel="preload" href="/static/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin/>

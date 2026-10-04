@@ -44,7 +44,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Pingo</title><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script src=\"/static/js/htmx-4.0.0.min.js\"></script><link rel=\"preload\" href=\"/static/fonts/inter-latin-wght-normal.woff2\" as=\"font\" type=\"font/woff2\" crossorigin></head><body class=\"flex min-h-dvh flex-col\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | Pingo</title><script>\n                const darkMode = window.matchMedia(\"(prefers-color-scheme: dark)\");\n\n                function updateTheme() {\n                    document.documentElement.classList.toggle(\"dark\", darkMode.matches);\n                }\n\n                updateTheme();\n                darkMode.addEventListener(\"change\", updateTheme);\n            </script><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script src=\"/static/js/htmx-4.0.0.min.js\"></script><link rel=\"preload\" href=\"/static/fonts/inter-latin-wght-normal.woff2\" as=\"font\" type=\"font/woff2\" crossorigin></head><body class=\"flex min-h-dvh flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
