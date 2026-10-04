@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func NewServiceHandler(db *sql.DB, q *db.Queries) *ServiceHandler {
+func NewServiceHandler(db *sql.DB, q db.Querier) *ServiceHandler {
 	return &ServiceHandler{
 		db: db,
 		q:  q,
@@ -21,7 +21,7 @@ func NewServiceHandler(db *sql.DB, q *db.Queries) *ServiceHandler {
 type ServiceHandler struct {
 	pb.UnimplementedServiceServiceServer
 	db *sql.DB
-	q  *db.Queries
+	q  db.Querier
 }
 
 func mapServiceDB(service *db.Service, latestPing *db.Ping) *pb.Service {
@@ -37,7 +37,7 @@ func mapServiceDB(service *db.Service, latestPing *db.Ping) *pb.Service {
 }
 
 func (h *ServiceHandler) GetService(ctx context.Context, r *pb.GetServiceRequest) (*pb.Service, error) {
-	service, err := h.q.GetServiceByID(ctx, r.Id)
+	service, err := h.q.GetServiceByID(ctx, h.db, r.Id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "service not found")
@@ -46,7 +46,7 @@ func (h *ServiceHandler) GetService(ctx context.Context, r *pb.GetServiceRequest
 		return nil, status.Error(codes.Internal, "failed to fetch service")
 	}
 
-	latestPing, err := h.q.GetLatestServicePing(ctx, service.ID)
+	latestPing, err := h.q.GetLatestServicePing(ctx, h.db, service.ID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to fetch latest ping")
 	}
@@ -55,7 +55,7 @@ func (h *ServiceHandler) GetService(ctx context.Context, r *pb.GetServiceRequest
 }
 
 func (h *ServiceHandler) ListServices(ctx context.Context, r *pb.ListServicesRequest) (*pb.ListServicesResponse, error) {
-	services, err := h.q.ListServices(ctx)
+	services, err := h.q.ListServices(ctx, h.db)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to fetch services")
 	}
@@ -65,7 +65,7 @@ func (h *ServiceHandler) ListServices(ctx context.Context, r *pb.ListServicesReq
 		servicesIds[i] = service.ID
 	}
 
-	latestPings, err := h.q.ListLatestPings(ctx, servicesIds)
+	latestPings, err := h.q.ListLatestPings(ctx, h.db, servicesIds)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to fetch latest pings")
 	}

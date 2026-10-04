@@ -8,4 +8,7 @@ sql:
         package: "db"
         out: "internal/db"
         emit_result_struct_pointers: true
+        emit_interface: true
+        query_parameter_limit: 1
+        emit_methods_with_db_argument: true
 

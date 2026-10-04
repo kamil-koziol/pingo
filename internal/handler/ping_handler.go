@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func NewPingHandler(db *sql.DB, q *db.Queries) *PingHandler {
+func NewPingHandler(db *sql.DB, q db.Querier) *PingHandler {
 	return &PingHandler{
 		db: db,
 		q:  q,
@@ -23,7 +23,7 @@ func NewPingHandler(db *sql.DB, q *db.Queries) *PingHandler {
 type PingHandler struct {
 	pb.UnimplementedPingServiceServer
 	db *sql.DB
-	q  *db.Queries
+	q  db.Querier
 }
 
 func mapPingDB(ping *db.Ping) *pb.Ping {
@@ -49,7 +49,7 @@ func mapPingDB(ping *db.Ping) *pb.Ping {
 }
 
 func (h *PingHandler) GetPing(ctx context.Context, r *pb.GetPingRequest) (*pb.Ping, error) {
-	ping, err := h.q.GetPing(ctx, r.Id)
+	ping, err := h.q.GetPing(ctx, h.db, r.Id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "ping not found")
@@ -79,7 +79,7 @@ func (h *PingHandler) ListPings(ctx context.Context, r *pb.ListPingsRequest) (*p
 		params.TimestampBefore = r.TimestampBefore.AsTime()
 	}
 
-	pings, err := h.q.ListPings(ctx, params)
+	pings, err := h.q.ListPings(ctx, h.db, params)
 	if err != nil {
 		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "failed to fetch pings")

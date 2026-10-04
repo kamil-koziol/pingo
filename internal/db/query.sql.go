@@ -27,8 +27,8 @@ type CreatePingParams struct {
 	Timestamp          time.Time
 }
 
-func (q *Queries) CreatePing(ctx context.Context, arg CreatePingParams) error {
-	_, err := q.db.ExecContext(ctx, createPing,
+func (q *Queries) CreatePing(ctx context.Context, db DBTX, arg CreatePingParams) error {
+	_, err := db.ExecContext(ctx, createPing,
 		arg.ServiceID,
 		arg.StatusCode,
 		arg.ExpectedStatusCode,
@@ -48,8 +48,8 @@ ORDER BY timestamp DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLatestServicePing(ctx context.Context, serviceID int64) (*Ping, error) {
-	row := q.db.QueryRowContext(ctx, getLatestServicePing, serviceID)
+func (q *Queries) GetLatestServicePing(ctx context.Context, db DBTX, serviceID int64) (*Ping, error) {
+	row := db.QueryRowContext(ctx, getLatestServicePing, serviceID)
 	var i Ping
 	err := row.Scan(
 		&i.ID,
@@ -68,8 +68,8 @@ const getPing = `-- name: GetPing :one
 SELECT id, service_id, status_code, expected_status_code, latency_ms, is_up, error_message, timestamp FROM pings WHERE id=? LIMIT 1
 `
 
-func (q *Queries) GetPing(ctx context.Context, id int64) (*Ping, error) {
-	row := q.db.QueryRowContext(ctx, getPing, id)
+func (q *Queries) GetPing(ctx context.Context, db DBTX, id int64) (*Ping, error) {
+	row := db.QueryRowContext(ctx, getPing, id)
 	var i Ping
 	err := row.Scan(
 		&i.ID,
@@ -88,8 +88,8 @@ const getServiceByID = `-- name: GetServiceByID :one
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE id=? LIMIT 1
 `
 
-func (q *Queries) GetServiceByID(ctx context.Context, id int64) (*Service, error) {
-	row := q.db.QueryRowContext(ctx, getServiceByID, id)
+func (q *Queries) GetServiceByID(ctx context.Context, db DBTX, id int64) (*Service, error) {
+	row := db.QueryRowContext(ctx, getServiceByID, id)
 	var i Service
 	err := row.Scan(
 		&i.ID,
@@ -106,8 +106,8 @@ const getServiceByName = `-- name: GetServiceByName :one
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services WHERE name=? LIMIT 1
 `
 
-func (q *Queries) GetServiceByName(ctx context.Context, name string) (*Service, error) {
-	row := q.db.QueryRowContext(ctx, getServiceByName, name)
+func (q *Queries) GetServiceByName(ctx context.Context, db DBTX, name string) (*Service, error) {
+	row := db.QueryRowContext(ctx, getServiceByName, name)
 	var i Service
 	err := row.Scan(
 		&i.ID,
@@ -132,7 +132,7 @@ type ListLatestPingsRow struct {
 	Max  interface{}
 }
 
-func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]*ListLatestPingsRow, error) {
+func (q *Queries) ListLatestPings(ctx context.Context, db DBTX, serviceIds []int64) ([]*ListLatestPingsRow, error) {
 	query := listLatestPings
 	var queryParams []interface{}
 	if len(serviceIds) > 0 {
@@ -143,7 +143,7 @@ func (q *Queries) ListLatestPings(ctx context.Context, serviceIds []int64) ([]*L
 	} else {
 		query = strings.Replace(query, "/*SLICE:service_ids*/?", "NULL", 1)
 	}
-	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	rows, err := db.QueryContext(ctx, query, queryParams...)
 	if err != nil {
 		return nil, err
 	}
@@ -190,8 +190,8 @@ type ListPingsParams struct {
 	TimestampBefore interface{}
 }
 
-func (q *Queries) ListPings(ctx context.Context, arg ListPingsParams) ([]*Ping, error) {
-	rows, err := q.db.QueryContext(ctx, listPings,
+func (q *Queries) ListPings(ctx context.Context, db DBTX, arg ListPingsParams) ([]*Ping, error) {
+	rows, err := db.QueryContext(ctx, listPings,
 		arg.IsUp,
 		arg.ServiceID,
 		arg.TimestampAfter,
@@ -231,8 +231,8 @@ const listServices = `-- name: ListServices :many
 SELECT id, name, url, is_active, interval_seconds, expected_status FROM services
 `
 
-func (q *Queries) ListServices(ctx context.Context) ([]*Service, error) {
-	rows, err := q.db.QueryContext(ctx, listServices)
+func (q *Queries) ListServices(ctx context.Context, db DBTX) ([]*Service, error) {
+	rows, err := db.QueryContext(ctx, listServices)
 	if err != nil {
 		return nil, err
 	}
@@ -278,8 +278,8 @@ type UpsertServiceParams struct {
 	ExpectedStatus  int64
 }
 
-func (q *Queries) UpsertService(ctx context.Context, arg UpsertServiceParams) (*Service, error) {
-	row := q.db.QueryRowContext(ctx, upsertService,
+func (q *Queries) UpsertService(ctx context.Context, db DBTX, arg UpsertServiceParams) (*Service, error) {
+	row := db.QueryRowContext(ctx, upsertService,
 		arg.Name,
 		arg.Url,
 		arg.IntervalSeconds,

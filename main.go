@@ -112,11 +112,11 @@ func run() error {
 		log.Fatalf("unable to create db: %v", err)
 	}
 
-	q := db.New(conn)
+	q := db.New()
 
 	// Ensure services
 	for _, check := range config.Checks {
-		service, err := q.UpsertService(ctx, db.UpsertServiceParams{
+		service, err := q.UpsertService(ctx, conn, db.UpsertServiceParams{
 			Name:            check.Name,
 			Url:             check.URL.String(),
 			IntervalSeconds: int64(check.Interval.Seconds()),
@@ -126,7 +126,7 @@ func run() error {
 			log.Fatalf("unable to upsert service: %v", err)
 		}
 
-		m := monitoring.NewMonitor(service, q, alerter)
+		m := monitoring.NewMonitor(service, q, conn, alerter)
 		monitorCtx := contextx.WithLogger(ctx, logger)
 		go m.Run(monitorCtx)
 	}

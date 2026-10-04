@@ -20,14 +20,16 @@ import (
 
 type Monitor struct {
 	service *db.Service
-	q       *db.Queries
+	q       db.Querier
+	db      *sql.DB
 	alerter alerting.Alerter
 }
 
-func NewMonitor(service *db.Service, queries *db.Queries, alerter alerting.Alerter) *Monitor {
+func NewMonitor(service *db.Service, q db.Querier, db *sql.DB, alerter alerting.Alerter) *Monitor {
 	return &Monitor{
 		service: service,
-		q:       queries,
+		q:       q,
+		db:      db,
 		alerter: alerter,
 	}
 }
@@ -110,7 +112,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		return fmt.Errorf("unable to read the body: %w", err)
 	}
 
-	if err = m.q.CreatePing(ctx, db.CreatePingParams{
+	if err = m.q.CreatePing(ctx, m.db, db.CreatePingParams{
 		ServiceID:          m.service.ID,
 		StatusCode:         int64(resp.StatusCode),
 		ExpectedStatusCode: int64(m.service.ExpectedStatus),
@@ -122,7 +124,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 		return fmt.Errorf("unable to create ping: %w", err)
 	}
 
-	latestPing, err := m.q.GetLatestServicePing(ctx, m.service.ID)
+	latestPing, err := m.q.GetLatestServicePing(ctx, m.db, m.service.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			latestPing = nil
