@@ -8,10 +8,17 @@
 
 version: 2
 
+before:
+  hooks:
+    - go tool task templ:generate
+    - go tool task tailwind:build
+
 builds:
   - main: ./...
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     goos:
       - linux
       - windows
