@@ -24,7 +24,7 @@ func routes(q db.Querier, conn db.DBTX) http.Handler {
 	dashboard := handler.NewDashboard(q, conn)
 
 	mux := http.NewServeMux()
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(static.FS)))
+	mux.Handle("GET /static/", static.Handler())
 	mux.HandleFunc("GET /{$}", dashboard.Index)
 	mux.HandleFunc("GET /dashboard/content", dashboard.Content)
 	return mux

@@ -1,6 +1,10 @@
 package views
 
-import "github.com/kamil-koziol/pingo/internal/web/components"
+import (
+	"github.com/kamil-koziol/pingo/internal/web/components"
+	"github.com/kamil-koziol/pingo/internal/web/components/ui/input"
+	"github.com/kamil-koziol/pingo/internal/web/static"
+)
 
 templ Layout(title string) {
 	<!DOCTYPE html>
@@ -19,9 +23,10 @@ templ Layout(title string) {
                 updateTheme();
                 darkMode.addEventListener("change", updateTheme);
             </script>
-			<link rel="stylesheet" href="/static/css/output.css"/>
-			<script src="/static/js/htmx-4.0.0.min.js"></script>
+			<link rel="stylesheet" href={ static.URL("css/output.css") }/>
+			<script src={ static.URL("js/htmx-4.0.0.min.js") }></script>
 			<link rel="preload" href="/static/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin/>
+			@input.Script()
 		</head>
 		<body class="flex min-h-dvh flex-col">
 			@components.Navbar()
