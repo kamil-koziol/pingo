@@ -6,6 +6,7 @@ import (
 
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/web/components/ui/badge"
+	"github.com/kamil-koziol/pingo/internal/web/components/ui/button"
 	"github.com/kamil-koziol/pingo/internal/web/components/ui/card"
 	"github.com/kamil-koziol/pingo/internal/web/components/ui/input"
 )
@@ -177,8 +178,15 @@ templ ServiceCard(it ServiceStatus) {
 					@card.Title(card.TitleProps{Class: "truncate text-base"}) {
 						{ it.Service.Name }
 					}
-					@card.Description(card.DescriptionProps{Class: "truncate"}) {
-						{ it.Service.Url }
+					@card.Description() {
+						@button.Button(button.Props{
+							Variant: button.VariantLink,
+							Href:    it.Service.Url,
+							Target:  "_blank",
+							Class:   "p-0 text-muted-foreground",
+						}) {
+							<span class="truncate">{ it.Service.Url }</span>
+						}
 					}
 				</div>
 				@badge.Badge(stateBadge(st)) {
