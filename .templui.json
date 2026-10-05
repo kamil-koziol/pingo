@@ -2,6 +2,6 @@
   "componentsDir": "internal/web/components/ui",
   "utilsDir": "internal/web/components/ui/utils",
   "moduleName": "github.com/kamil-koziol/pingo",
-  "jsDir": "internal/static/js",
+  "jsDir": "internal/web/static/js",
   "jsPublicPath": "/static/js"
 }
