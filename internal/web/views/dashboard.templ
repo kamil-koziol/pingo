@@ -111,6 +111,16 @@ templ Dashboard(stats Stats, items []ServiceStatus, q string) {
 	}
 }
 
+templ RefreshIndicator() {
+	<p class="flex items-center gap-2 text-xs text-muted-foreground">
+		<span class="relative flex h-2 w-2">
+			<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+			<span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+		</span>
+		Live · updated { time.Now().Format("15:04:05") }
+	</p>
+}
+
 templ ContentWrapper(stats Stats, items []ServiceStatus, q string) {
 	<div
 		id="dashboard-content"
@@ -120,6 +130,7 @@ templ ContentWrapper(stats Stats, items []ServiceStatus, q string) {
 		hx-include="#service-search"
 		class="space-y-6"
 	>
+		@RefreshIndicator()
 		@StatCards(stats)
 		@ServiceGrid(items, q)
 	</div>
