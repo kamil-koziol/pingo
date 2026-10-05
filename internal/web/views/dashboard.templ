@@ -198,9 +198,6 @@ templ ServiceCard(it ServiceStatus) {
 					</dd>
 				</div>
 			</dl>
-			if it.Ping != nil && it.Ping.ErrorMessage.Valid && !it.Ping.IsUp {
-				<p class="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{ it.Ping.ErrorMessage.String }</p>
-			}
 		}
 		@card.Footer() {
 			<p class="text-xs text-muted-foreground">Every { fmt.Sprint(it.Service.IntervalSeconds) }s</p>
