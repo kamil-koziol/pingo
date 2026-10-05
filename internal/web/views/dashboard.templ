@@ -7,6 +7,7 @@ import (
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/web/components/ui/badge"
 	"github.com/kamil-koziol/pingo/internal/web/components/ui/card"
+	"github.com/kamil-koziol/pingo/internal/web/components/ui/input"
 )
 
 type ServiceStatus struct {
@@ -83,26 +84,43 @@ func timeAgo(t time.Time) string {
 	}
 }
 
-templ Dashboard(stats Stats, items []ServiceStatus) {
+templ Dashboard(stats Stats, items []ServiceStatus, q string) {
 	@Layout("Dashboard") {
 		<div class="mb-6">
 			<h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
 			<p class="text-sm text-muted-foreground">Live status of your monitored services. Refreshes every 5s.</p>
 		</div>
-		@ContentWrapper(stats, items)
+		@input.Input(input.Props{
+			ID:          "service-search",
+			Name:        "q",
+			Type:        input.TypeSearch,
+			Value:       q,
+			Placeholder: "Search services…",
+			Class:       "w-full sm:w-72 mb-6",
+			Attributes: templ.Attributes{
+				"autocomplete": "off",
+				"aria-label":   "Search services",
+				"hx-get":       "/dashboard/content",
+				"hx-trigger":   "input changed delay:300ms, search",
+				"hx-target":    "#dashboard-content",
+				"hx-swap":      "outerHTML",
+			},
+		})
+		@ContentWrapper(stats, items, q)
 	}
 }
 
-templ ContentWrapper(stats Stats, items []ServiceStatus) {
+templ ContentWrapper(stats Stats, items []ServiceStatus, q string) {
 	<div
 		id="dashboard-content"
 		hx-get="/dashboard/content"
 		hx-trigger="every 5s"
 		hx-swap="outerHTML"
+		hx-include="#service-search"
 		class="space-y-6"
 	>
 		@StatCards(stats)
-		@ServiceGrid(items)
+		@ServiceGrid(items, q)
 	</div>
 }
 
@@ -128,11 +146,15 @@ templ statCard(label, value, valueClass string) {
 	}
 }
 
-templ ServiceGrid(items []ServiceStatus) {
+templ ServiceGrid(items []ServiceStatus, q string) {
 	if len(items) == 0 {
 		@card.Card() {
 			@card.Content(card.ContentProps{Class: "py-10 text-center text-sm text-muted-foreground"}) {
-				No services yet.
+				if q != "" {
+					No services match “{ q }”.
+				} else {
+					No services yet.
+				}
 			}
 		}
 	} else {

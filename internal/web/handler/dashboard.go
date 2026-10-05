@@ -4,9 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/kamil-koziol/pingo/internal/db"
 	"github.com/kamil-koziol/pingo/internal/web/views"
+	"github.com/kamil-koziol/pingo/pkg/fuzzy"
 )
 
 type Dashboard struct {
@@ -24,7 +26,9 @@ func (h *Dashboard) Index(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, err)
 		return
 	}
-	if err := views.Dashboard(stats, items).Render(r.Context(), w); err != nil {
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if err := views.Dashboard(stats, items, q).Render(r.Context(), w); err != nil {
 		slog.Error("render dashboard", "err", err)
 	}
 }
@@ -36,7 +40,9 @@ func (h *Dashboard) Content(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, err)
 		return
 	}
-	if err := views.ContentWrapper(stats, items).Render(r.Context(), w); err != nil {
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if err := views.ContentWrapper(stats, items, q).Render(r.Context(), w); err != nil {
 		slog.Error("render content", "err", err)
 	}
 }
@@ -102,6 +108,17 @@ func (h *Dashboard) load(r *http.Request) (views.Stats, []views.ServiceStatus, e
 		}
 		return items[i].Service.Name < items[j].Service.Name
 	})
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if q != "" {
+		kept := items[:0]
+		for _, it := range items {
+			if fuzzy.Match(q, it.Service.Name+it.Service.Url) {
+				kept = append(kept, it)
+			}
+		}
+		items = kept
+	}
 
 	return stats, items, nil
 }
