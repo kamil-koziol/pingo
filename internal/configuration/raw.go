@@ -2,12 +2,44 @@ package configuration
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"gopkg.in/yaml.v3"
 )
+
+type LogLevel slog.Level
+
+func (l *LogLevel) UnmarshalYAML(n *yaml.Node) error {
+	var s string
+	if err := n.Decode(&s); err != nil {
+		return err
+	}
+	var v slog.Level
+	if err := v.UnmarshalText([]byte(s)); err != nil {
+		return fmt.Errorf("line %d: invalid log level %q (use debug, info, warn, error)", n.Line, s)
+	}
+	*l = LogLevel(v)
+	return nil
+}
+
+func (l LogLevel) Level() slog.Level { return slog.Level(l) }
+
+type rawLog struct {
+	Level *LogLevel `yaml:"level"`
+}
+
+func (h *rawLog) Default() {
+	if h.Level == nil {
+		h.Level = new(LogLevel(slog.LevelInfo))
+	}
+}
+
+func (h *rawLog) Validate() error {
+	return nil
+}
 
 type rawWeb struct {
 	Enabled bool `yaml:"enabled"`
@@ -150,6 +182,7 @@ func (a *rawAlert) Validate() error {
 type rawConfig struct {
 	API    *rawAPI     `yaml:"api"`
 	Web    *rawWeb     `yaml:"web"`
+	Log    *rawLog     `yaml:"log"`
 	Checks []*rawCheck `yaml:"checks"`
 	Alerts []*rawAlert `yaml:"alerts"`
 }
@@ -164,6 +197,11 @@ func (c *rawConfig) Default() {
 		c.Web = &rawWeb{}
 	}
 	c.Web.Default()
+
+	if c.Log == nil {
+		c.Log = &rawLog{}
+	}
+	c.Log.Default()
 
 	for _, check := range c.Checks {
 		if check != nil {

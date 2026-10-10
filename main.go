@@ -105,7 +105,7 @@ func run() error {
 
 	alerter = alerting.NewMultiAlerter(alerters...)
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: config.Log.Level}))
 	slog.SetDefault(logger)
 	alerter = alerting.NewLoggingAlerter(logger, alerter)
 

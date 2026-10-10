@@ -24,6 +24,7 @@ type AlerterConfig interface {
 type Config struct {
 	API    *rawAPI
 	Web    *rawWeb
+	Log    *rawLog
 	Checks []Check
 	Alerts []AlerterConfig
 }
@@ -58,6 +59,7 @@ func Parse(r io.Reader) (*Config, error) {
 		Alerts: make([]AlerterConfig, 0, len(raw.Alerts)),
 		API:    raw.API,
 		Web:    raw.Web,
+		Log:    raw.Log,
 	}
 
 	for _, c := range raw.Checks {
