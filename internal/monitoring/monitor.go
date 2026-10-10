@@ -89,7 +89,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	logger := contextx.Logger(ctx)
 	logger = logger.With("cid", cid)
 
-	logger.InfoContext(ctx, "checking", "url", m.service.Url, "service", m.service.Name)
+	logger.DebugContext(ctx, "checking", "url", m.service.Url, "service", m.service.Name)
 
 	start := time.Now()
 	resp, err := m.Call(ctx)
@@ -101,7 +101,7 @@ func (m *Monitor) Ping(ctx context.Context) error {
 	latency := time.Since(start)
 	isUp := int64(resp.StatusCode) == m.service.ExpectedStatus
 
-	logger.InfoContext(ctx, "got a response",
+	logger.DebugContext(ctx, "got a response",
 		"code", resp.StatusCode,
 		"is_up", isUp,
 		"latency", latency,
