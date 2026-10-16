@@ -2,7 +2,7 @@
 
 A dead-simple, single-binary uptime monitor built in Go. 
 
-Pingo is designed for developers who want a lightweight, self-hosted alternative to heavy monitoring platforms. It reads a simple YAML file, pings your websites and APIs, stores the results in a local SQLite database, and alerts you via email or webhook if anything goes offline.
+Pingo is designed for developers who want a lightweight, self-hosted alternative to heavy monitoring platforms. It reads a simple YAML file, pings your websites and APIs, stores the results in a local SQLite database and alerts you via email or webhook if anything goes offline.
 
 A clean, minimal web dashboard gives you a simple overview of your services, uptime, response times, and recent incidents without the noise of a full monitoring platform.
 
@@ -15,7 +15,9 @@ A clean, minimal web dashboard gives you a simple overview of your services, upt
 
 ## Quick start
 
-There is just a single binary that you can run `pingo`
+### Single static binary
+
+There is just a single binary that you can run `pingo` that you can get from the [Releases](https://github.com/kamil-koziol/pingo/releases) tab.
 
 ### Using docker
 
