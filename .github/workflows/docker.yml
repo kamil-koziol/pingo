@@ -43,9 +43,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=edge,enable=${{ github.ref == 'refs/heads/master' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{raw}}
-            type=sha,prefix=
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
