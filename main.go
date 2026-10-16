@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	_ "embed"
 	"errors"
 	"flag"
@@ -27,14 +28,15 @@ import (
 	"github.com/kamil-koziol/pingo/internal/middleware"
 	"github.com/kamil-koziol/pingo/internal/monitoring"
 	"github.com/kamil-koziol/pingo/internal/web/server"
+	"github.com/kamil-koziol/pingo/pkg/migrate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	_ "modernc.org/sqlite"
 )
 
-//go:embed schema.sql
-var ddl string
+//go:embed db/migrations/*
+var migrations embed.FS
 
 const (
 	DEFAULT_CONFIG_PATH = "config.yml"
@@ -47,8 +49,7 @@ func createDB(ctx context.Context, dbPath string) (*sql.DB, error) {
 		return nil, fmt.Errorf("unable to open db: %w", err)
 	}
 
-	// create tables
-	if _, err := conn.ExecContext(ctx, ddl); err != nil {
+	if err := migrate.Run(ctx, conn, migrations); err != nil {
 		log.Fatalf("unable to migrate db: %v", err)
 	}
 
