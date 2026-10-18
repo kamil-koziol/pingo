@@ -61,7 +61,7 @@ type Migration struct {
 
 const (
 	migrationSep = "_"
-	migrationDir = "migrations"
+	migrationDir = "db/migrations"
 )
 
 func GetAll(fsys fs.FS) ([]Migration, error) {
