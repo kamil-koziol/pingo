@@ -5,7 +5,14 @@ FROM golang@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download && go build tool
+
+
+# install the tooling beforehand
+COPY Taskfile.yml .
+
+# Install the tailwind cli
+RUN go tool task tailwind:install
 
 COPY . .
 
